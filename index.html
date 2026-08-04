@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>TREASURE HUNTER</title>
+
+<!-- Google Font (optional via CDN). Falls back to system pixel fonts offline. -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;600;800&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== CANVAS LAYER ===== -->
+<canvas id="game" tabindex="0"></canvas>
+
+<!-- ===== HUD (top bars) ===== -->
+<div id="hud" class="hidden">
+  <div id="hud-left">
+    <div id="hpbar"><div id="hpfill"></div><span id="hptext"></span></div>
+    <div id="expbar"><div id="expfill"></div></div>
+    <div id="statline">
+      <span class="chip">LV <b id="hud-level">1</b></span>
+      <span class="chip">⭐ <b id="hud-score">0</b></span>
+      <span class="chip">🪙 <b id="hud-coin">0</b></span>
+      <span class="chip">⚡ <b id="hud-exp">0</b>/<span id="hud-expmax">100</span></span>
+    </div>
+  </div>
+
+  <div id="hud-right">
+    <div id="timer">⏱ 0:00</div>
+    <div id="fpsmeter">FPS <b id="hud-fps">60</b></div>
+    <div class="chip danger">👾 <b id="hud-enemies">0</b></div>
+    <div class="chip gold">💎 <b id="hud-treasure">0</b></div>
+    <div id="combo" class="hidden">COMBO x<b id="combo-count">1</b></div>
+  </div>
+</div>
+
+<!-- ===== HUD: power-up ===== -->
+<div id="powerup-badges"></div>
+
+<!-- ===== MINIMAP ===== -->
+<canvas id="minimap" width="180" height="180"></canvas>
+
+<!-- ===== TITLE / MAIN MENU ===== -->
+<div id="menu" class="overlay">
+  <div class="con">
+    <div class="logo">
+      <div class="logo-icon">🏆</div>
+      <h1>TREASURE <span>HUNTER</span></h1>
+      <p class="tag">Pixel Adventure Fantasy</p>
+    </div>
+
+    <div class="menu-buttons">
+      <button class="btn play" id="btn-play">▶ Play</button>
+      <button class="btn" id="btn-howto">📖 How To Play</button>
+      <button class="btn" id="btn-settings">⚙ Settings</button>
+      <button class="btn" id="btn-highscore">🏆 High Score</button>
+      <button class="btn" id="btn-daily">🎁 Daily Reward</button>
+    </div>
+
+    <div class="version">v1.0 · 10 Levels</div>
+  </div>
+</div>
+
+<!-- ===== PAUSE ===== -->
+<div id="pause" class="overlay hidden">
+  <div class="con">
+    <h2>⏸ PAUSED</h2>
+    <button class="btn" id="btn-resume">▶ Resume</button>
+    <button class="btn" id="btn-settings2">⚙ Settings</button>
+    <button class="btn" id="btn-menu">🏠 Main Menu</button>
+  </div>
+</div>
+
+<!-- ===== LEVEL COMPLETE ===== -->
+<div id="levelcomplete" class="overlay hidden">
+  <div class="con">
+    <h2 class="gold-text">LEVEL COMPLETE!</h2>
+    <div id="stars"></div>
+    <div class="sum">
+      <div>Score <b id="lc-score">0</b></div>
+      <div>Coins <b id="lc-coin">0</b></div>
+      <div>Time <b id="lc-time">0:00</b></div>
+    </div>
+    <button class="btn" id="btn-next">▶ Next Level</button>
+  </div>
+</div>
+
+<!-- ===== GAME OVER ===== -->
+<div id="gameover" class="overlay hidden">
+  <div class="con">
+    <h2 class="red-text">GAME OVER</h2>
+    <div class="sum">
+      <div>Score <b id="go-score">0</b></div>
+      <div>Coins <b id="go-coin">0</b></div>
+      <div>Level <b id="go-level">1</b></div>
+    </div>
+    <button class="btn" id="btn-restart">🔄 Restart</button>
+    <button class="btn" id="btn-menu2">🏠 Main Menu</button>
+  </div>
+</div>
+
+<!-- ===== VICTORY ===== -->
+<div id="victory" class="overlay hidden">
+  <div class="con">
+    <h2 class="gold-text">🏆 VICTORY! 🏆</h2>
+    <p class="tag">You conquered all 10 levels!</p>
+    <div class="sum">
+      <div>Final Score <b id="vic-score">0</b></div>
+      <div>Coins <b id="vic-coin">0</b></div>
+    </div>
+    <button class="btn" id="btn-vicmenu">🏠 Main Menu</button>
+  </div>
+</div>
+
+<!-- ===== HOW TO PLAY ===== -->
+<div id="howto" class="overlay hidden">
+  <div class="con">
+    <h2>📖 How To Play</h2>
+    <div class="howto-grid">
+      <div><span class="k">WASD</span>/<span class="k">Arrows</span> Move</div>
+      <div><span class="k">Shift</span> Sprint</div>
+      <div><span class="k">Space</span> Dash</div>
+      <div><span class="k">Mouse</span>/<span class="k">CTRL</span> Attack</div>
+      <div><span class="k">ESC</span> Pause</div>
+      <div><span class="k">F3</span> Debug</div>
+    </div>
+    <p>⬆ Collect all <span class="tc">💎 TREASURES</span> to open the <span class="tc">🌀 PORTAL</span> and advance. <br/>Sprint, dash into danger, and defeat monsters to earn coins!</p>
+    <button class="btn" id="btn-howto-back">⬅ Back</button>
+  </div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div id="settings" class="overlay hidden">
+  <div class="con">
+    <h2>⚙ Settings</h2>
+    <label class="row"><span>🔊 Sound</span><input type="checkbox" id="set-sound" checked /></label>
+    <label class="row"><span>🎵 Music</span><input type="checkbox" id="set-music" checked /></label>
+    <label class="row"><span>💨 Screen Shake</span><input type="checkbox" id="set-shake" checked /></label>
+    <label class="row"><span>✨ Particles</span><input type="checkbox" id="set-particles" checked /></label>
+    <button class="btn" id="btn-settings-back">⬅ Back</button>
+  </div>
+</div>
+
+<!-- ===== HIGH SCORE ===== -->
+<div id="highscore" class="overlay hidden">
+  <div class="con">
+    <h2>🏆 High Score</h2>
+    <div class="scores">
+      <div>Best Score <b id="hs-score">0</b></div>
+      <div>Level Reached <b id="hs-level">1</b></div>
+      <div>Total Coins <b id="hs-coin">0</b></div>
+    </div>
+    <button class="btn" id="btn-hs-back">⬅ Back</button>
+  </div>
+</div>
+
+<!-- ===== DAILY REWARD ===== -->
+<div id="daily" class="overlay hidden">
+  <div class="con">
+    <h2>🎁 Daily Reward</h2>
+    <p id="daily-msg">Claim your reward!</p>
+    <button class="btn" id="btn-daily-claim">Claim +50 Coins</button>
+    <button class="btn" id="btn-daily-back">⬅ Back</button>
+  </div>
+</div>
+
+<!-- ===== FLOATING TOASTS / ACHIEVEMENTS ===== -->
+<div id="toastbox"></div>
+
+<!-- ===== VIRTUAL CONTROLS (mobile) ===== -->
+<div id="vcontrols" class="hidden">
+  <div id="joystick">
+    <div id="joy-base"></div>
+    <div id="joy-knob"></div>
+  </div>
+  <div id="btn-dash">⚡</div>
+  <div id="btn-attack">⚔</div>
+  <div id="btn-sprint">🏃</div>
+</div>
+
+<button id="btn-mute">🔊</button>
+<button id="btn-fullscreen">⛶</button>
+
+<!-- core/ single game file -->
+<script src="script.js"></script>
+</body>
+</html>
