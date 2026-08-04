@@ -823,8 +823,13 @@ class Camera {
     this.shakeX = 0; this.shakeY = 0;
   }
   computeZoom() {
-    // keep roughly a 960x560 world-view visible regardless of screen
-    return U.clamp(Math.min(this.game.vw / 960, this.game.vh / 560), 0.55, 1.5);
+    // device-aware, aspect-adaptive zoom.
+    // 16:9 desktop keeps zoom ~1.5 (identical to the old fixed view);
+    // narrow portrait phones zoom in so the hero stays a decent on-screen size.
+    const cw = window.innerWidth, ch = window.innerHeight;
+    const aspect = cw / ch;
+    const targetW = U.clamp(1280 * aspect / 1.78, 440, 1280); // world-units visible across the width
+    return U.clamp((cw / targetW) * (this.game.ctxDpr || 1), 0.6, 2.75);
   }
   follow(dt) {
     const p = this.game.player;
