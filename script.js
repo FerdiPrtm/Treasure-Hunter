@@ -57,12 +57,23 @@ const TREASURE_VALUES = {
 };
 
 const PALETTE = {
-  g: '#3d9a3f', G: '#2e7d32', d: '#256c2a', l: '#6fbf4f', D: '#1b5e20', // greens
-  w: '#f5e9c8', W: '#e8d6a3', b: '#7a4d1e', B: '#5b3a16', o: '#ffd54a', // wood/cream/gold
-  r: '#e53935', R: '#b71c1c', p: '#ab47bc', P: '#7b1fa2', k: '#263238',
-  y: '#fdd835', Y: '#f9a825', c: '#4dd0e1', C: '#00acc1', s: '#9e9e9e',
-  t: '#80cbc4', n: '#ffffff', u: '#455a64', m: '#a1887f', f: '#cfd8dc',
-  e: '#66bb6a', i: '#26a69a', x: '#e65100', z: '#1a237e',
+  // greens
+  g: '#3d9a3f', G: '#2e7d32', d: '#256c2a', l: '#6fbf4f', D: '#1b5e20', h: '#86d06a',
+  // wood / cream / gold
+  w: '#f5e9c8', W: '#e8d6a3', b: '#7a4d1e', B: '#5b3a16', o: '#ffd54a', O: '#f09f0a',
+  // reds / purple
+  r: '#e53935', R: '#b71c1c', R2: '#ff8a80', p: '#ab47bc', P: '#7b1fa2', P2: '#ce93d8',
+  k: '#263238', K: '#37474f',
+  // yellows (coins)
+  y: '#fdd835', Y: '#f9a825', Y2: '#fff59d',
+  // cyans / oceans
+  c: '#4dd0e1', C: '#00acc1', C2: '#80deea',
+  s: '#9e9e9e', S: '#616161',
+  t: '#80cbc4', n: '#ffffff', N: '#e0e0e0',
+  u: '#455a64', m: '#a1887f', f: '#cfd8dc', F: '#eceff1',
+  e: '#66bb6a', i: '#26a69a', x: '#e65100', X: '#ff7043', z: '#1a237e', Z: '#283593',
+  // skin + extras
+  sk: '#e8a87c', sk2: '#f0c29b', hair: '#5b3a16', hair2: '#7a4d1e', eye: '#263238',
 };
 
 /* =========================================================================
@@ -301,12 +312,17 @@ class Input {
     });
     window.addEventListener('mouseup', (e) => { if (e.button === 0) this.mouse.down = false; });
     window.addEventListener('blur', () => { this.keys = {}; });
-    // ---- virtual joystick (left thumb region) ----
+    // ---- virtual joystick (big left-half touch zone + visual stick) ----
+    const zone = document.getElementById('joy-zone');
     const joy = document.getElementById('joystick');
     const knob = document.getElementById('joy-knob');
     const base = document.getElementById('joy-base');
     const R = 46; // max knob travel
     let cx = 0, cy = 0;
+    const stickRect = () => {
+      const r = base.getBoundingClientRect();
+      cx = r.left + r.width / 2; cy = r.top + r.height / 2;
+    };
     const setJoy = (clientX, clientY) => {
       let dx = clientX - cx, dy = clientY - cy;
       const len = Math.hypot(dx, dy);
@@ -316,28 +332,32 @@ class Input {
       this.joy.dx = dx / R;
       this.joy.dy = dy / R;
     };
-    joy.addEventListener('pointerdown', (e) => {
+    const joyDown = (e) => {
       e.preventDefault();
       this.joy.active = true;
       this._joyId = e.pointerId;
-      const r = base.getBoundingClientRect();
-      cx = r.left + r.width / 2; cy = r.top + r.height / 2;
+      stickRect();
       knob.style.left = '50%'; knob.style.top = '50%';
       joy.setPointerCapture(e.pointerId);
       setJoy(e.clientX, e.clientY);
-    });
-    joy.addEventListener('pointermove', (e) => {
+    };
+    const joyMove = (e) => {
       if (this.joy.active && e.pointerId === this._joyId) setJoy(e.clientX, e.clientY);
-    });
-    const release = (e) => {
+    };
+    const joyRelease = (e) => {
       if (e.pointerId === this._joyId) {
         this.joy.active = false; this.joy.dx = 0; this.joy.dy = 0;
         knob.style.left = '50%'; knob.style.top = '50%';
         this._joyId = null;
       }
     };
-    joy.addEventListener('pointerup', release);
-    joy.addEventListener('pointercancel', release);
+    // big zone = primary target; joystick visual also listens (fallback)
+    for (const el of [zone, joy]) {
+      el.addEventListener('pointerdown', joyDown);
+      el.addEventListener('pointermove', joyMove);
+      el.addEventListener('pointerup', joyRelease);
+      el.addEventListener('pointercancel', joyRelease);
+    }
     // ---- touch buttons ----
     this._bindBtn('btn-dash', () => this.game.playerDash());
     this._bindBtn('btn-attack', () => this.game.playerAttack());
@@ -371,16 +391,56 @@ class Input {
 /* =========================================================================
    SECTION 6 — SPRITES (procedural pixel-art atlas, no downloads)
    ========================================================================= */
-function pixelSprite(grid, palette, scale) {
-  const h = grid.length, w = grid[0].length;
+/* Builds a canvas from an ASCII grid. Adds a 1px dark outline around every solid
+   pixel (auto-detect empty neighbours in 8 directions) for a crisp, premium
+   pixel-art look. `cell' prepends 1px margin so the outline never clips. */
+function pixelSprite(grid, palette, scale, outline = true, outlineColor = '#15171c') {
+  const gh = grid.length, gw = grid[0].length;
+  // guards so asset errors surface loudly instead of silently rendering magenta
+  for (let i = 0; i < gh; i++) if (grid[i].length !== gw) throw new Error(`pixelSprite: row ${i} width ${grid[i].length} != ${gw}`);
+  const P = 1; // 1-cell padding for the outline
   const c = document.createElement('canvas');
-  c.width = w * scale; c.height = h * scale;
+  c.width = (gw + P * 2) * scale;
+  c.height = (gh + P * 2) * scale;
   const g = c.getContext('2d');
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+  const solid = (x, y) => { if (x < 0 || y < 0 || x >= gw || y >= gh) return false; const ch = grid[y][x]; return ch !== '.' && ch !== ' '; };
+  // base fill
+  for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
     const ch = grid[y][x];
     if (ch === '.' || ch === ' ') continue;
     g.fillStyle = palette[ch] || '#f0f';
-    g.fillRect(x * scale, y * scale, scale, scale);
+    g.fillRect((x + P) * scale, (y + P) * scale, scale, scale);
+  }
+  // outline pass (dark rim around silhouettes)
+  if (outline) {
+    g.fillStyle = outlineColor;
+    for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
+      if (!solid(x, y)) continue;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        if (!solid(x + dx, y + dy)) {
+          g.fillRect((x + P + dx) * scale, (y + P + dy) * scale, scale, scale);
+        }
+      }
+    }
+  }
+  return c;
+}
+
+/* Builds an array of animation frames (frame sheets) sharing one palette/scale. */
+function spriteSheet(grids, palette, scale, outline = true, outlineColor) {
+  return grids.map(grid => pixelSprite(grid, palette, scale, outline, outlineColor));
+}
+
+/* Convenience: pre-render an array of pixel rects into a canvas at a given scale.
+   Each cell: [x, y, w, h, color]. Used for richer shading/highlights. */
+function rectSprite(w, h, scale, cells) {
+  const c = document.createElement('canvas');
+  c.width = w * scale; c.height = h * scale;
+  const g = c.getContext('2d');
+  for (const [x, y, rw, rh, col] of cells) {
+    g.fillStyle = col;
+    g.fillRect(x * scale, y * scale, rw * scale, rh * scale);
   }
   return c;
 }
@@ -389,128 +449,125 @@ const Sprites = (() => {
   const atlas = {};
   const S = 4; // pixel scale
 
-  // ---------- treasure sprites ----------
+  // ---------- treasure sprites (outlined + shaded) ----------
   atlas.coin = pixelSprite([
-    '..oo..',
-    '.oYYo.',
-    'oYyyYo',
-    'oYyyYo',
-    '.oYYo.',
-    '..oo..',
-  ], { o: PALETTE.x, Y: PALETTE.y, y: PALETTE.Y }, S);
+    '..ooOO..',
+    '.oYYYOo.',
+    'oYYYYYOo',
+    'oYnYYYYo',
+    'oYnYYYYo',
+    'oYYYYYoo',
+    '.oYYOoo.',
+    '..ooOO..',
+  ], { o: PALETTE.O, O: PALETTE.o, Y: PALETTE.y, n: PALETTE.Y2 }, S);
 
-  atlas.diamond = pixelSprite([
-    '...cc...',
-    '..cCCc..',
-    '.cCwwCc.',
-    '.cCCCCc.',
-    '..cCCc..',
-    '...cc...',
-  ], { c: PALETTE.C, C: PALETTE.c, w: '#ffffff' }, S);
+  // shared faceted-gem silhouette — reused with different palettes
+  const gem = (edge, main, mid, shine) => pixelSprite([
+    '....M....',
+    '...mMm...',
+    '..mMAmm..',
+    '.mMAwAMm.',
+    '..mMAmm..',
+    '...mMm...',
+    '....M....',
+  ], { M: main, m: edge, A: mid, w: shine }, S);
 
-  atlas.ruby = pixelSprite([
-    '....r....',
-    '...rRr...',
-    '..rRwwr..',
-    '..rRrrr..',
-    '...rRr...',
-    '....r....',
-  ], { r: PALETTE.R, R: PALETTE.r, w: '#ffffff' }, S);
-
-  atlas.emerald = pixelSprite([
-    '....g....',
-    '...gGg...',
-    '..gGwwg..',
-    '..gGggg..',
-    '...gGg...',
-    '....g....',
-  ], { g: PALETTE.D, G: PALETTE.e, w: '#ffffff' }, S);
+  atlas.diamond = gem(PALETTE.C, PALETTE.c, PALETTE.C2, '#ffffff');
+  atlas.ruby = gem(PALETTE.R, PALETTE.r, PALETTE.R2, '#ffffff');
+  atlas.emerald = gem(PALETTE.D, PALETTE.e, PALETTE.g, '#ffffff');
 
   atlas.chest = pixelSprite([
-    '..YYYY..',
-    '.YWWWWY.',
-    '.YWWWWY.',
-    '.YWWWWY.',
-    '.YnnnnY.',
-    'YYYYYYYY',
-    'YYWYYWYY',
-    'YYWYYWYY',
-    '.YWWWWY.',
-  ], { Y: PALETTE.o, W: PALETTE.W, n: PALETTE.x }, S);
+    '..oooooooo..',
+    '.oYYYYYYYYo.',
+    '.oYYwYYYYYo.',
+    'oYYYYYYYYYYo',
+    'oYYYYYYYYYYo',
+    'oYBBBBBBBBYo',
+    'oYBBBBBBBBYo',
+    'oYBBoOoBBYo.',
+    '.oBBoooooBB.',
+    '..oooooooo..',
+  ], { o: PALETTE.O, O: PALETTE.o, Y: PALETTE.y, w: PALETTE.Y2, B: PALETTE.b }, S);
 
-  // ---------- enemy sprites ----------
+  // ---------- enemy sprites (outlined + shaded) ----------
   atlas.slime = pixelSprite([
-    '..gggg..',
-    '.ggGGgg.',
-    'gGgnnGGg',
-    'gGgnnGGg',
-    'gGGGGGGg',
-    '.gGGGGg.',
-    '..gggg..',
-  ], { g: PALETTE.e, G: PALETTE.G, n: PALETTE.n }, S);
+    '..lllll..',
+    '.lGGGGGl.',
+    'lGGnnGGGl',
+    'lGGnnGGGl',
+    'lGGGGGGGl',
+    '.lGGGGGl.',
+    '..lllll..',
+  ], { l: PALETTE.l, G: PALETTE.e, n: PALETTE.n }, S);
 
   atlas.bat = pixelSprite([
-    'P......P',
-    'PP....PP',
-    '.PPppPP.',
-    '..pppp..',
-    '.nnppnn.',
-    '.nnppnn.',
-    '..p..p..',
-  ], { P: PALETTE.P, p: PALETTE.p, n: PALETTE.n }, S);
+    '.k..vvvvv..k..',
+    'kk..vvvvv..kk.',
+    '.kk.vvBvv.kk..',
+    '..kkkvvnvvk...',
+    '....kvvvvk....',
+    '.....kvBvk....',
+    '......kkk.....',
+  ], { k: PALETTE.P, v: PALETTE.p, B: PALETTE.K, n: PALETTE.n }, S);
 
   atlas.skeleton = pixelSprite([
-    '..wwww..',
-    '.wwwwww.',
-    '..nnnn..',
-    '..wwww..',
-    '.ww..ww.',
-    '.ww..ww.',
-    '..w..w..',
-    '..w..w..',
-  ], { w: PALETTE.w, n: PALETTE.n }, S);
+    '..wwwwww..',
+    '.wwwwwwww.',
+    '.nnwwwnn..',
+    '..wwwwww..',
+    '.ww....ww.',
+    '.ww....ww.',
+    '..ww..ww..',
+    '..ww..ww..',
+  ], { w: PALETTE.w, n: PALETTE.K }, S);
 
   atlas.goblin = pixelSprite([
-    '..gggg..',
-    '.gGGGGg.',
-    '.gGnnGg.',
-    '..gggg..',
-    '.gGGGGg.',
-    '.g.g.g..',
-  ], { g: PALETTE.e, G: PALETTE.G, n: PALETTE.n }, S);
+    '..gggggg..',
+    '.gggggggg.',
+    '.gyyygggg.',
+    '.gggggggg.',
+    '.gggggggg.',
+    '.ggg.ggg..',
+    '..ggggg...',
+  ], { g: PALETTE.e, y: PALETTE.y }, S);
 
   atlas.ghost = pixelSprite([
-    '..........',
-    '..ffffff..',
-    '.fFffffFf.',
-    '.fFffnnFf.',
-    '.fFffnnFf.',
-    '.ffffffff.',
-    '.ffffffff.',
-    '..fff.ff..',
-  ], { f: PALETTE.f, F: PALETTE.m, n: PALETTE.n }, S);
+    '....ffffff..',
+    '..ffffffffff',
+    '.ffffffffff.',
+    '.ffnnfffffff',
+    '.ffnnffffff.',
+    '.fffffffffff',
+    '.fff.fffff..',
+    '.ff..ffff...',
+  ], { f: PALETTE.F, n: PALETTE.K }, S);
 
-  // ---------- boss sprites ----------
+  // ---------- boss sprites (large + shaded) ----------
   atlas.treant = pixelSprite([
-    '....BBBB....',
-    '..BBBBBBBB..',
-    '.BBBBBBBBBB.',
-    '.BBnnBBnnBB.',
-    '.BBnnBBnnBB.',
-    '.BBBBBBBBBB.',
-    '..BBBBBBBB..',
-    '..BwBwBwBw..',
-    '..w..w..w...',
-  ], { B: PALETTE.B, n: PALETTE.x, w: PALETTE.W }, S);
+    '....BBBBBBBB....',
+    '..BBBBBBBBBBBB..',
+    '.BBBBBBBBBBBBBB.',
+    '.BBnnBBBBBBnnBB.',
+    '.BBnnBBBBBBnnBB.',
+    '.BBBBBBBBBBBBBB.',
+    '..BBBBBBBBBBBB..',
+    '..BwBwBwBwBwBw..',
+    '..BwBwBwBwBwBw..',
+    '..BBw..BB..wBB..',
+    '...Bw...BB...w..',
+    '....w....BB.....',
+  ], { B: PALETTE.B, w: PALETTE.W, n: PALETTE.x }, S);
 
   atlas.dragon = pixelSprite([
-    '..zzzzzz..',
-    '.zZnnZnnz.',
-    '.zZnnZnnz.',
-    '..zzzzzz..',
-    '.zZzzzzZz.',
-    '.ZzzzzzzZ.',
-    '..ZzzzzZ..',
+    '..zzzzzzzzzzzz..',
+    '.zzzzzzzzzzzzzz.',
+    '.zZnnzzZZzzzZzz.',
+    '.zZnnzzZZzzzZzz.',
+    '.zzzzzzzzzzzzzz.',
+    '..zzzzzzZZzzzz..',
+    '..zZzzzzzzzzZz..',
+    '..zz.zzzzzz.zz..',
+    '...zz....zz.....',
   ], { z: PALETTE.z, Z: PALETTE.i, n: PALETTE.x }, S);
 
   // ---------- tiles ----------
@@ -557,27 +614,24 @@ const Sprites = (() => {
   atlas.tree = pixelSprite([
     '....GGGGGG....',
     '..GGGGGGGGGG..',
-    '.GGGDDGGDGGGG.',
+    '.GGGGDDGGGGGG.',
     'GGGDDGGGGGGDDG',
-    'GGGGGGGGDDGGGG',
-    '.GGGDDGGGGGGG.',
+    'GGGDDGGGGGGDDG',
     '..GGGGGGGGGG..',
     '....BBBBBB....',
-    '.....BBBB.....',
-    '.....BBBB.....',
-    '.....BBBB.....',
-  ], { G: PALETTE.G, D: PALETTE.d, B: PALETTE.B }, 4);
+    '....BBBpB.....',
+    '....BBBBB.....',
+    '.....BBB......',
+  ], { G: PALETTE.G, D: PALETTE.d, B: PALETTE.B, p: PALETTE.sk }, 4);
 
   atlas.rock = pixelSprite([
-    '...ssss...',
-    '.ssssssss.',
-    'sbsbsbssss',
-    'sssssssbsb',
-    'sbsbssssss',
-    'sssssbsbsb',
-    '.ssssssss.',
-    '...ssss...',
-  ], { s: PALETTE.s, b: PALETTE.m }, 4);
+    '..ssss..',
+    '.ssSsss.',
+    'sSssssss',
+    'ssssssSb',
+    'ssssbbss',
+    '.ssssss.',
+  ], { s: PALETTE.s, S: PALETTE.n, b: PALETTE.S }, 4);
 
   atlas.bush = pixelSprite([
     '..GGGG..',
@@ -596,21 +650,20 @@ const Sprites = (() => {
     '.G.G.',
   ], { n: '#ffffff', y: PALETTE.y, Y: PALETTE.Y, G: PALETTE.G }, 2);
 
-  // ---------- power-ups ----------
-  const potion = (body, top) => pixelSprite([
-    '..nn..',
-    '.nWWn.',
-    '.nWWn.',
-    '.nWWn.',
-    'nWWWWn',
-    'nWWWWn',
-    '.nWWn.',
-  ], { n: top, W: body }, 3);
-  atlas.potion_speed = potion(PALETTE.y, PALETTE.Y);
-  atlas.potion_shield = potion(PALETTE.c, PALETTE.C);
-  atlas.potion_magnet = potion(PALETTE.p, PALETTE.P);
-  atlas.potion_double = potion('#ffffff', PALETTE.x);
-  atlas.potion_heal = potion(PALETTE.r, PALETTE.R);
+  // ---------- power-ups (glass potions) ----------
+  const potion = (liquid) => pixelSprite([
+    '.bhhb.',
+    'bllllb',
+    'bllllb',
+    'bllllb',
+    'bllllb',
+    '.bbbb.',
+  ], { b: PALETTE.K, h: PALETTE.n, l: liquid }, 3);
+  atlas.potion_speed = potion(PALETTE.y);
+  atlas.potion_shield = potion(PALETTE.c);
+  atlas.potion_magnet = potion(PALETTE.p);
+  atlas.potion_double = potion(PALETTE.f);
+  atlas.potion_heal = potion(PALETTE.r);
 
   // ---------- heart (HUD / floating) ----------
   atlas.heart = pixelSprite([
@@ -1056,73 +1109,264 @@ class Map {
     }
   }
   /* three parallax background layers: sky, clouds+sun/moon, mountain + forest strip */
+  /* ============ PROFESSIONAL BACKGROUND ============
+     Pre-rendered parallax strips (sky + mountains + hills + canopy), tiled
+     seamlessly, regenerated only when weather or viewport changes. */
+
+  /* weather palettes for each background layer */
+  _bgTheme() {
+    const sunny = { sky: ['#4db3e8', '#ddf3fb'], sun: true, moon: false, star: 0, cloudA: 0.9,
+                    mtn: '#4a8f6a', mtn2: '#3d7a58', snow: '#eef6f0', hill: '#357450', canopy: '#2a5f3f', canopyLight: '#3c8a5f' };
+    const themes = {
+      sunny,
+      rain:      { sky: ['#566a82', '#8fa6b8'], sun: false, moon: false, star: 0,   cloudA: 0.95,
+                   mtn: '#3f5566', mtn2: '#374b5b', snow: null, hill: '#33504a', canopy: '#2b4640', canopyLight: '#3b5a52' },
+      fog:       { sky: ['#b7ccc3', '#e4efeb'], sun: true,  moon: false, star: 0,   cloudA: 0.7,
+                   mtn: '#7fa392', mtn2: '#6d9182', snow: null, hill: '#5f8575', canopy: '#54796b', canopyLight: '#688f7e' },
+      night:     { sky: ['#050a22', '#17234e'], sun: false, moon: true,  star: 0.9, cloudA: 0.45,
+                   mtn: '#101a3a', mtn2: '#0d1631', snow: null, hill: '#0c1830', canopy: '#0a142a', canopyLight: '#12203c' },
+      lightning: { sky: ['#46586e', '#7c93a6'], sun: false, moon: false, star: 0,   cloudA: 0.95,
+                   mtn: '#37495c', mtn2: '#32404f', snow: null, hill: '#2c4440', canopy: '#273f3a', canopyLight: '#37504a' },
+    };
+    return themes[this.game.weather.type] || sunny;
+  }
+
+  _ensureBg() {
+    const key = `${this.game.weather.type}|${window.innerWidth}|${window.innerHeight}`;
+    if (key === this._bgKey) return;
+    this._bgKey = key;
+    this._bg = this._buildBackground();
+  }
+
+  _buildBackground() {
+    const th = this._bgTheme();
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const W = (Math.ceil(vw / 720) + 2) * 720; // multiple of 720 → seamless tiling
+    const w0 = Math.PI * 2 / 360;
+    const bg = { W, layers: [], clouds: [], birds: [], sun: th.sun, moon: th.moon };
+
+    /* ---- sky layer (full viewport canvas) ---- */
+    bg.sky = document.createElement('canvas');
+    bg.sky.width = vw; bg.sky.height = vh;
+    const sg = bg.sky.getContext('2d');
+    const grad = sg.createLinearGradient(0, 0, 0, vh);
+    grad.addColorStop(0, th.sky[0]);
+    grad.addColorStop(1, th.sky[1]);
+    sg.fillStyle = grad;
+    sg.fillRect(0, 0, vw, vh);
+    // stars (night)
+    if (th.star) {
+      let seed = 42;
+      const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+      for (let i = 0; i < 110; i++) {
+        const x = rnd() * vw, y = rnd() * vh * 0.65, r = rnd() * 1.4 + 0.4;
+        sg.globalAlpha = rnd() * 0.7 + 0.3;
+        sg.fillStyle = rnd() < 0.2 ? '#fff3c4' : '#ffffff';
+        sg.fillRect(x, y, r, r);
+      }
+      sg.globalAlpha = 1;
+    }
+    // sun / moon + god rays
+    const sx = vw * 0.34, sy = vh * 0.16;
+    if (th.sun) {
+      sg.save();
+      sg.globalAlpha = 0.06;
+      sg.fillStyle = th.sky[1];
+      sg.translate(sx, sy);
+      for (let i = -3; i <= 3; i++) {
+        sg.save();
+        sg.rotate(i * 0.22);
+        sg.beginPath();
+        sg.moveTo(0, 0);
+        sg.lineTo(-70, vh);
+        sg.lineTo(70, vh);
+        sg.closePath();
+        sg.fill();
+        sg.restore();
+      }
+      sg.restore();
+      sg.save();
+      sg.shadowColor = '#fff0b0'; sg.shadowBlur = 70;
+      sg.fillStyle = '#ffef9e';
+      sg.beginPath(); sg.arc(sx, sy, 48, 0, 6.29); sg.fill();
+      sg.shadowBlur = 0;
+      sg.fillStyle = '#fff8cf';
+      sg.beginPath(); sg.arc(sx, sy, 36, 0, 6.29); sg.fill();
+      sg.restore();
+    }
+    if (th.moon) {
+      sg.save();
+      sg.shadowColor = '#dfe6ff'; sg.shadowBlur = 50;
+      sg.fillStyle = '#e9edf7';
+      sg.beginPath(); sg.arc(sx, sy, 40, 0, 6.29); sg.fill();
+      sg.fillStyle = th.sky[0];           // crescent shadow
+      sg.beginPath(); sg.arc(sx - 16, sy - 8, 34, 0, 6.29); sg.fill();
+      sg.restore();
+    }
+    // scattered clouds drifting on their own layer (behind mountains)
+    const cloudN = Math.max(4, Math.round(vw / 420));
+    for (let i = 0; i < cloudN; i++) {
+      bg.clouds.push({
+        x: i / cloudN + (i % 2) * 0.13,
+        y: 0.08 + (i % 3) * 0.09 + Math.random() * 0.05,
+        s: 70 + Math.random() * 90,
+        a: 0.5 + Math.random() * 0.4,
+        v: 4 + Math.random() * 8,
+      });
+    }
+    /* ---- mountain strips (2 tones + snow caps on sunny) ---- */
+    const ridge = (baseY, hgtFn, color, snow) => {
+      const c = document.createElement('canvas');
+      c.width = W; c.height = vh;
+      const g = c.getContext('2d');
+      g.fillStyle = color;
+      g.beginPath();
+      g.moveTo(0, vh);
+      for (let x = 0; x <= W; x += 8) g.lineTo(x, baseY - hgtFn(x));
+      g.lineTo(W, vh);
+      g.closePath();
+      g.fill();
+      if (snow) {
+        g.fillStyle = snow;
+        let prev = hgtFn(0), cur = hgtFn(8), nxt = hgtFn(16);
+        const peakThresh = 0.62 * (baseY * 0.5);
+        for (let x = 8; x <= W; x += 8) {
+          if (cur >= prev && cur >= nxt && cur > peakThresh) {
+            g.beginPath();
+            g.moveTo(x - 7, baseY - cur + 3);
+            g.lineTo(x, baseY - cur - 9);
+            g.lineTo(x + 7, baseY - cur + 3);
+            g.closePath();
+            g.fill();
+          }
+          prev = cur; cur = nxt; nxt = hgtFn(x + 16);
+        }
+      }
+      return c;
+    };
+    bg.layers.push({ c: ridge(vh * 0.74, (x) => 150 + Math.sin(x * w0) * 95 + Math.sin(x * w0 * 2 + 1.3) * 50, th.mtn2, null), f: 0.12 });
+    bg.layers.push({ c: ridge(vh * 0.82, (x) => 120 + Math.sin(x * w0 * 1 + 0.6) * 80 + Math.sin(x * w0 * 2) * 45, th.mtn, th.snow), f: 0.22 });
+    /* ---- rolling hills strip ---- */
+    {
+      const c = document.createElement('canvas');
+      c.width = W; c.height = vh;
+      const g = c.getContext('2d');
+      g.fillStyle = th.hill;
+      g.beginPath();
+      g.moveTo(0, vh);
+      for (let x = 0; x <= W; x += 6) {
+        const h = 96 + Math.sin(x * w0 + 0.6) * 34 + Math.sin(x * w0 * 3 + 1.2) * 26 + Math.sin(x * w0 * 5) * 14;
+        g.lineTo(x, vh - h);
+      }
+      g.lineTo(W, vh); g.closePath(); g.fill();
+      // little distant tree bumps on the ridge
+      g.fillStyle = th.canopy;
+      for (let x = 0; x < W; x += 48) {
+        const h = 96 + Math.sin(x * w0 + 0.6) * 34 + Math.sin(x * w0 * 3 + 1.2) * 26;
+        const sway = Math.sin(x * 0.7) * 6;
+        g.beginPath();
+        g.arc(x + sway, vh - h - 8, 10 + Math.sin(x) * 3, Math.PI, 0);
+        g.lineTo(x + sway + 10 + Math.sin(x) * 3, vh - h - 8);
+        g.closePath();
+        g.fill();
+      }
+      bg.layers.push({ c, f: 0.5 });
+    }
+    /* ---- near canopy strip with light gaps ---- */
+    {
+      const c = document.createElement('canvas');
+      c.width = W; c.height = vh;
+      const g = c.getContext('2d');
+      const baseY = vh * 0.94;
+      g.fillStyle = th.canopy;
+      g.beginPath();
+      g.moveTo(0, vh);
+      for (let x = 0; x <= W; x += 10) {
+        const h = 62 + Math.sin(x * w0 * 4) * 24 + Math.sin(x * w0 * 9 + 1) * 15;
+        g.lineTo(x, baseY - h);
+      }
+      g.lineTo(W, vh); g.closePath(); g.fill();
+      // soft light gaps on top edge
+      g.globalAlpha = 0.28;
+      g.fillStyle = th.canopyLight;
+      for (let x = 0; x < W; x += 36) {
+        const h = 62 + Math.sin(x * w0 * 4) * 24 + Math.sin(x * w0 * 9 + 1) * 15;
+        g.beginPath();
+        g.arc(x + 8, baseY - h, 7, 0, 6.29);
+        g.fill();
+      }
+      g.globalAlpha = 1;
+      bg.layers.push({ c, f: 0.8 });
+    }
+    // flying birds (live, subtle)
+    for (let i = 0; i < 3; i++) {
+      bg.birds.push({ x: Math.random(), y: 0.18 + Math.random() * 0.12, ph: Math.random() * 6.28, s: 1 + Math.random() * 0.7, v: 6 + Math.random() * 6 });
+    }
+    return bg;
+  }
+
+  /* draw a strip tiled twice so it wraps seamlessly with parallax factor f */
+  _tileBg(ctx, strip, off) {
+    const W = strip.width;
+    off = ((off % W) + W) % W;
+    ctx.drawImage(strip, -off, 0);
+    ctx.drawImage(strip, W - off, 0);
+  }
+
   drawBackground(ctx) {
-    const { vw, vh, camera } = this.game;
-    // sky gradient (color varies with weather)
-    const skyTop = this.game.weather.type === 'night' ? '#0a1030' : this.game.weather.type === 'rain' || this.game.weather.type === 'lightning' ? '#5b748c' : this.game.weather.type === 'fog' ? '#aec9c0' : '#6fc3f0';
-    const skyBot = this.game.weather.type === 'night' ? '#16224a' : '#cfeef5';
-    const g = ctx.createLinearGradient(0, 0, 0, vh);
-    g.addColorStop(0, skyTop);
-    g.addColorStop(1, skyBot);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, vw, vh);
-    const sun = this.game.weather.type === 'night' ? 'moon' : 'sun';
-    // sun / moon
-    const p = this.game.player;
-    const su = 0.25, mv = 0.5;
-    const sx = (camera.x * su + vw * 0.35) % (vw + 200) - 100;
-    const sy = vh * 0.14 + (camera.y - p.y) * mv * 0.01;
+    this._ensureBg();
+    const bg = this._bg;
+    const cam = this.game.camera;
+    const time = this.game.time;
+    const vw = window.innerWidth;
+    // sky (no parallax)
+    ctx.drawImage(bg.sky, 0, 0);
+    // clouds (drift gently)
     ctx.save();
-    ctx.shadowBlur = 60;
-    ctx.shadowColor = '#fff7c0';
-    ctx.fillStyle = sun === 'moon' ? '#e8ecf5' : '#ffef9e';
-    ctx.beginPath(); ctx.arc(sx, sy, 46, 0, 6.29); ctx.fill();
+    for (const c of bg.clouds) {
+      const off = cam.x * 0.10 + time * c.v;
+      let x = (c.x * (vw + 300) - off) % (vw + 300) - 150;
+      if (x < -160) x += vw + 300;
+      this._puff(ctx, x, c.y * window.innerHeight, c.s, c.a);
+    }
     ctx.restore();
-    if (sun === 'sun') {
-      ctx.save(); ctx.globalAlpha = 0.18;
-      ctx.fillStyle = '#fff7c0';
-      ctx.beginPath(); ctx.arc(sx, sy, 82, 0, 6.29); ctx.fill();
+    // parallax land strips
+    for (const l of bg.layers) this._tileBg(ctx, l.c, cam.x * l.f);
+    // birds
+    ctx.fillStyle = 'rgba(30,40,30,0.7)';
+    for (const b of bg.birds) {
+      let x = (b.x * (vw + 200) + cam.x * 0.85 + time * b.v * 12) % (vw + 200) - 100;
+      if (x < -80) x += vw + 200;
+      const y = b.y * window.innerHeight + Math.sin(time + b.ph) * 10;
+      const flap = Math.sin(time * 6 + b.ph) * 3;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(b.s, b.s);
+      ctx.beginPath();
+      ctx.moveTo(-6, 0); ctx.quadraticCurveTo(-3, -6 - flap, 0, 0);
+      ctx.quadraticCurveTo(3, -6 - flap, 6, 0);
+      ctx.lineTo(0, 0);
+      ctx.fill();
       ctx.restore();
     }
-    // clouds (slow drift)
-    ctx.save();
-    ctx.globalAlpha = this.game.weather.type === 'night' ? 0.4 : 0.85;
-    for (let i = 0; i < 6; i++) {
-      const cx = ((i * 340 + camera.x * 0.18 + this.game.time * 9) % (vw + 300)) - 150;
-      const cy = 50 + i * 42 + Math.sin(this.game.time * 0.3 + i) * 12;
-      this._cloud(ctx, cx, cy, 60 + i * 18);
-    }
-    ctx.restore();
-    // far mountain silhouette (parallax 0.4)
-    const mo = 0.4;
-    const off = camera.x * mo;
-    ctx.fillStyle = this.game.weather.type === 'night' ? '#101a3a' : '#2e6b4f';
-    ctx.beginPath();
-    ctx.moveTo(0, vh);
-    for (let x = 0; x <= vw + 40; x += 40) {
-      const wx = x + off * 0.0;
-      const hgt = 190 + Math.sin((x + off) * 0.006) * 80 + Math.sin((x + off) * 0.016) * 45;
-      ctx.lineTo(x, vh - hgt);
-    }
-    ctx.lineTo(vw, vh); ctx.closePath(); ctx.fill();
-    // near forest strip (parallax 0.7) — dense canopy silhouettes
-    const fo = 0.7;
-    ctx.fillStyle = this.game.weather.type === 'night' ? '#0c1428' : '#1d5c3c';
-    ctx.beginPath();
-    ctx.moveTo(0, vh);
-    for (let x = 0; x <= vw + 40; x += 24) {
-      const hgt = 90 + Math.sin((x + camera.x * fo) * 0.012) * 34 + Math.sin((x + camera.x * fo) * 0.03) * 22;
-      ctx.lineTo(x, vh - hgt);
-    }
-    ctx.lineTo(vw, vh); ctx.closePath(); ctx.fill();
   }
-  _cloud(ctx, x, y, s) {
+
+  /* soft puffy cloud (multi-arc, shaded) */
+  _puff(ctx, x, y, s, a) {
+    ctx.globalAlpha = a;
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(x, y, s * 0.45, 0, 6.29);
-    ctx.arc(x + s * 0.4, y - s * 0.1, s * 0.35, 0, 6.29);
-    ctx.arc(x + s * 0.7, y + s * 0.05, s * 0.3, 0, 6.29);
+    ctx.arc(x, y, s * 0.5, 0, 6.29);
+    ctx.arc(x + s * 0.42, y - s * 0.16, s * 0.4, 0, 6.29);
+    ctx.arc(x + s * 0.8, y - s * 0.04, s * 0.32, 0, 6.29);
+    ctx.arc(x + s * 0.38, y + s * 0.14, s * 0.34, 0, 6.29);
     ctx.fill();
+    ctx.fillStyle = 'rgba(200,220,235,0.55)'; // soft shading
+    ctx.beginPath();
+    ctx.arc(x + s * 0.22, y + s * 0.1, s * 0.4, 0, 6.29);
+    ctx.arc(x + s * 0.62, y + s * 0.12, s * 0.3, 0, 6.29);
+    ctx.fill();
+    ctx.globalAlpha = 1;
   }
 }
 
@@ -1320,50 +1564,107 @@ class Player extends Entity {
     ctx.scale(this.facing * this.squash, this.stretch);
     if (dying) ctx.rotate(Math.PI / 2);
     if (this.hitFlash > 0) ctx.filter = 'brightness(3) saturate(0.5)';
-    // body — green tunic adventurer
-    ctx.fillStyle = '#1b5e20';           // legs
+    // body — green tunic adventurer (pixel-shaded: rim + depth)
     const legSwing = Math.sin(this.walkPh * 2) * 4;
+    // cape (behind body, sways gently)
+    ctx.fillStyle = '#1b5e20';
+    ctx.beginPath();
+    ctx.moveTo(-9, -8);
+    ctx.quadraticCurveTo(-12, 2 + Math.sin(this.walkPh) * 1.5, -6, 12 + Math.sin(this.walkPh) * 2);
+    ctx.quadraticCurveTo(-4, 6, -8, -4);
+    ctx.fill();
+    // legs + boots (dark outline under each leg reads better)
+    ctx.fillStyle = '#14381a';
+    ctx.fillRect(-7, 3 + legSwing * 0.3, 6, 10);
+    ctx.fillRect(1, 3 - legSwing * 0.3, 6, 10);
+    ctx.fillStyle = '#2e7d32';
     ctx.fillRect(-6, 4 + legSwing * 0.3, 4, 8);
     ctx.fillRect(2, 4 - legSwing * 0.3, 4, 8);
-    ctx.fillStyle = '#e8d6a3';           // boots
-    ctx.fillRect(-7, 10 + legSwing * 0.3, 5, 3);
-    ctx.fillRect(2, 10 - legSwing * 0.3, 5, 3);
-    ctx.fillStyle = '#2e7d32';           // tunic
+    ctx.fillStyle = '#5b3a16';           // boots
+    ctx.fillRect(-8, 10 + legSwing * 0.3, 6, 3);
+    ctx.fillRect(2, 10 - legSwing * 0.3, 6, 3);
+    ctx.fillStyle = '#7a4d1e';           // boot highlights
+    ctx.fillRect(-7, 10 + legSwing * 0.3, 2, 2);
+    ctx.fillRect(3, 10 - legSwing * 0.3, 2, 2);
+    // tunic (gradient: light left → dark right for depth)
+    const tun = ctx.createLinearGradient(-8, -8, 8, -8);
+    tun.addColorStop(0, '#43a047');
+    tun.addColorStop(0.45, '#2e7d32');
+    tun.addColorStop(1, '#1b5e20');
+    ctx.fillStyle = tun;
     ctx.fillRect(-8, -8, 16, 14);
-    ctx.fillStyle = '#256c2a';
-    ctx.fillRect(-8, -3, 16, 3);
-    ctx.fillStyle = '#8b5a2b';           // belt
+    ctx.fillStyle = 'rgba(255,255,255,0.14)'; // top rim light
+    ctx.fillRect(-8, -8, 16, 2);
+    // belt + buckle
+    ctx.fillStyle = '#4e342e';
     ctx.fillRect(-8, 4, 16, 3);
-    ctx.fillStyle = '#ffd54a';           // buckle
+    ctx.fillStyle = '#ffd54a';
     ctx.fillRect(-2, 4, 4, 3);
-    ctx.fillStyle = '#e8a87c';           // head
-    ctx.fillRect(-7, -17, 14, 10);
-    ctx.fillStyle = '#5b3a16';           // hair
-    ctx.fillRect(-7, -18, 14, 5);
-    ctx.fillStyle = '#4e342e';           // cap
-    ctx.fillRect(-8, -19, 16, 3);
-    ctx.fillStyle = '#000';              // eye
-    ctx.fillRect(this.facing > 0 ? 3 : -5, -13, 3, 3);
-    ctx.fillStyle = '#e8d6a3';           // arms
+    ctx.fillStyle = '#fff59d';
+    ctx.fillRect(-1, 4, 2, 1);
+    // arms (skin with green sleeves)
     const armLift = Math.sin(this.walkPh) * 3;
-    ctx.fillRect(-11, -7 + armLift * 0.3, 4, 7);
-    ctx.fillRect(7, -7 - armLift * 0.3, 4, 7);
-    // sword when attacking
+    ctx.fillStyle = '#2e7d32';
+    ctx.fillRect(-12, -8 + armLift * 0.3, 4, 5);
+    ctx.fillRect(8, -8 - armLift * 0.3, 4, 5);
+    ctx.fillStyle = '#e8a87c';
+    ctx.fillRect(-11, -4 + armLift * 0.3, 3, 6);
+    ctx.fillRect(8, -4 - armLift * 0.3, 3, 6);
+    // head
+    ctx.fillStyle = '#f0c29b';           // face base
+    ctx.fillRect(-7, -17, 14, 10);
+    ctx.fillStyle = '#e8a87c';
+    ctx.fillRect(-7, -16, 6, 9);         // face shadow side
+    ctx.fillStyle = '#5b3a16';           // hair
+    ctx.fillRect(-7, -18, 14, 4);
+    ctx.fillStyle = '#7a4d1e';
+    ctx.fillRect(-7, -18, 5, 2);         // hair highlight
+    ctx.fillStyle = '#4e342e';           // cap
+    ctx.fillRect(-8, -20, 16, 3);
+    ctx.fillStyle = '#2e7d32';           // cap feather
+    ctx.fillRect(-8, -22, 2, 3);
+    // eye (facing right) with glint
+    ctx.fillStyle = '#263238';
+    ctx.fillRect(this.facing > 0 ? 4 : -6, -14, 2, 2);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(this.facing > 0 ? 5 : -5, -15, 1, 1);
+    // sword when attacking — sweeping arc with trail
     if (this.attackT > 0) {
       const prog = 1 - this.attackT / 0.28;
-      const ang = -0.9 + Math.sin(prog * Math.PI) * 1.8; // swipe
+      const ang = -1.15 + Math.sin(prog * Math.PI) * 1.9;
       ctx.save();
       ctx.rotate(ang);
-      ctx.fillStyle = '#cfd8dc';
-      ctx.fillRect(6, -16, 4, 16);
-      ctx.fillStyle = '#ffd54a';
-      ctx.fillRect(6, -18, 4, 3);
-      ctx.restore();
-      ctx.fillStyle = '#fff';
-      ctx.globalAlpha = 0.25 * (1 - prog);
+      // sword trail (motion blur feel)
+      ctx.globalAlpha = 0.35 * (1 - prog);
+      ctx.strokeStyle = '#ffd54a';
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(0, -8, 20 * (1 - prog * 0.5), 0, 6.29);
-      ctx.fill();
+      ctx.moveTo(8, -6);
+      ctx.quadraticCurveTo(18, -20 - prog * 10, 30, -12);
+      ctx.stroke();
+      // blade + guard + hilt
+      const bg = ctx.createLinearGradient(0, -30, 0, -4);
+      bg.addColorStop(0, '#ffffff');
+      bg.addColorStop(0.5, '#cfd8dc');
+      bg.addColorStop(1, '#90a4ae');
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = bg;
+      ctx.fillRect(8, -30, 5, 24);
+      ctx.fillStyle = '#ffd54a';         // guard
+      ctx.fillRect(6, -7, 9, 3);
+      ctx.fillStyle = '#7a4d1e';         // hilt
+      ctx.fillRect(9, -4, 4, 6);
+      ctx.restore();
+      // swing arc glow
+      ctx.save();
+      ctx.globalAlpha = 0.28 * (1 - prog);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, -8, 26, -1.1, -1.1 + Math.PI * 1.35 * (1 - prog) * 0.8);
+      ctx.stroke();
+      ctx.restore();
     }
     ctx.restore();
     // magnet aura / shield aura
@@ -2168,7 +2469,8 @@ class Game {
     this.enemiesChasing = false;
     this.weatherTimer = 0;
     this.powerupTimer = 0;
-    this.isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    this.isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) ||
+      (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
     this.dashTimes = 0;
     this.weather = new Weather(this);
     this.camera = new Camera(this);

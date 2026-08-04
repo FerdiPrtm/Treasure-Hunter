@@ -185,26 +185,34 @@ h2{
 
 /* ========= VIRTUAL CONTROLS ========= */
 #vcontrols{ position:fixed; inset:0; z-index:12; pointer-events:none; }
+/* transparent touch zone = left half of the screen — big thumb-friendly target */
+#joy-zone{
+  position:absolute; left:0; top:0; bottom:0; width:55%;
+  pointer-events:auto; touch-action:none; cursor:pointer;
+}
 #joystick{
   position:absolute; left:38px; bottom:38px; width:130px; height:130px;
-  pointer-events:none;
+  pointer-events:auto; touch-action:none;
 }
 #joy-base{
   position:absolute; inset:0; border-radius:50%;
   background:rgba(255,255,255,.15); border:3px solid rgba(255,255,255,.5);
   box-shadow:0 0 18px rgba(0,0,0,.4);
+  touch-action:none;
 }
 #joy-knob{
   position:absolute; width:58px; height:58px; border-radius:50%;
   background:radial-gradient(circle at 35% 30%,#fff,#cfd8dc);
   box-shadow:0 4px 10px rgba(0,0,0,.4);
   left:50%; top:50%; transform:translate(-50%,-50%);
+  touch-action:none;
 }
 .vbtn{
   position:absolute; width:64px; height:64px; border-radius:50%;
   background:rgba(255,255,255,.18); border:3px solid rgba(255,255,255,.6);
   color:#fff; font-size:1.5rem; display:flex; align-items:center; justify-content:center;
   box-shadow:0 0 14px rgba(0,0,0,.4); pointer-events:auto; cursor:pointer;
+  touch-action:none;
 }
 .vbtn:active{ background:rgba(255,213,74,.4); }
 #btn-dash{ right:130px; bottom:70px; }
