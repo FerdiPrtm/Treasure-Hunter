@@ -30,6 +30,8 @@
    SECTION 0 — BOOT
    ========================================================================= */
 window.addEventListener('DOMContentLoaded', () => {
+  // prevent right-click / long-press context menu (touch-action handled in CSS)
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
   const g = new Game();
   window.__game = g; // handy for debugging in console
   g.init();
@@ -2558,6 +2560,9 @@ class Game {
   init() {
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    // auto-pause when the tab/window loses focus so the hero never dies idle
+    document.addEventListener('visibilitychange', () => { if (document.hidden && this.state === 'PLAYING') this.pause(); });
+    window.addEventListener('blur', () => { if (this.state === 'PLAYING') this.pause(); });
     this.ui.setMuteIcon(!Storage.get('sound'));
     this.audio.ensure();
     // pretty menu backdrop (static level-1 world behind the menu overlay)
