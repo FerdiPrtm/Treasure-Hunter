@@ -125,6 +125,7 @@ const ICONS = {
   dragon: iconSVG('<path d="M12 4c3 1 4 4 3 7-1 3-5 4-7 3s-2-6 1-8c1-1 2-2 3-2z"/><path d="M12 11c1 2 1 5 0 7"/><path d="M11 5l-3-1"/><path d="M14 12l3-1"/>'),
   money: iconSVG('<circle cx="12" cy="12" r="9"/><path d="M8.5 9h3a1.5 1.5 0 0 1 0 3h-1a1.5 1.5 0 0 0 0 3h3"/><path d="M12 6.5V8"/><path d="M12 16v1.5"/>'),
   check: iconSVG('<path d="M20 6L9 17l-5-5"/>'),
+  trash: iconSVG('<path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/>'),
 };
 
 /* =========================================================================
@@ -2314,6 +2315,29 @@ class UI {
       this.audio('click');
       this.show(back);
     };
+    // reset progress (two-step confirm)
+    const btnReset = $('btn-reset');
+    let resetTimer = null;
+    const resetLabel = () => {
+      btnReset.classList.remove('confirm');
+      btnReset.innerHTML = ICONS.trash + 'Reset Progress';
+    };
+    btnReset.onclick = () => {
+      if (btnReset.classList.contains('confirm')) {
+        clearTimeout(resetTimer);
+        Storage.reset();
+        this.refreshSettings();
+        this.setMuteIcon(!Storage.get('sound'));
+        this.audio('click');
+        this.game.toast('reset', ICONS.check + ' Progress reset!');
+        resetLabel();
+      } else {
+        btnReset.classList.add('confirm');
+        btnReset.innerHTML = ICONS.trash + 'Yakin? Klik lagi';
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(resetLabel, 3000);
+      }
+    };
     $('btn-highscore').onclick = () => { this.audio('click'); this.refreshHighscore(); this.show('highscore'); };
     $('btn-hs-back').onclick = () => { this.audio('click'); this.show('menu'); };
     $('btn-daily').onclick = () => { this.audio('click'); this.refreshDaily(); this.show('daily'); };
@@ -2439,6 +2463,11 @@ class UI {
     this.$('set-music').checked = !!Storage.get('music');
     this.$('set-shake').checked = !!Storage.get('shake');
     this.$('set-particles').checked = !!Storage.get('particles');
+    const btnReset = this.$('btn-reset');
+    if (btnReset) {
+      btnReset.classList.remove('confirm');
+      btnReset.innerHTML = ICONS.trash + 'Reset Progress';
+    }
   }
   setMuteIcon(muted) {
     this.$('btn-mute').classList.toggle('muted', muted);

@@ -93,6 +93,10 @@ h2{
 .btn.play{ background:linear-gradient(180deg,#ffd54a,#f09f0a); color:#3b2b00; box-shadow:0 5px 0 #b26a00, 0 8px 18px rgba(0,0,0,.5); }
 .btn.play:active{ box-shadow:0 1px 0 #b26a00; }
 .btn.gray{ background:linear-gradient(180deg,#546e7a,#37474f); box-shadow:0 5px 0 #263238; }
+.btn.danger{ background:linear-gradient(180deg,#e53935,#b71c1c); box-shadow:0 5px 0 #7f0000, 0 8px 18px rgba(0,0,0,.5); }
+.btn.danger:active{ box-shadow:0 1px 0 #7f0000; }
+.btn.danger.confirm{ animation:confirmPulse .55s infinite; }
+@keyframes confirmPulse{ 50%{ filter:brightness(1.4); transform:scale(1.05); } }
 
 /* ========= HUD ========= */
 #hud{
