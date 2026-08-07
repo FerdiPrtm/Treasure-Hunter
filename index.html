@@ -24,17 +24,17 @@
     <div id="expbar"><div id="expfill"></div></div>
     <div id="statline">
       <span class="chip">LV <b id="hud-level">1</b></span>
-      <span class="chip">⭐ <b id="hud-score">0</b></span>
-      <span class="chip">🪙 <b id="hud-coin">0</b></span>
-      <span class="chip">⚡ <b id="hud-exp">0</b>/<span id="hud-expmax">100</span></span>
+      <span class="chip"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 6.6L21 10l-5 4 1.5 7-5.5-3.5L6.5 21 8 14l-5-4 6.4-.4z"/></svg> <b id="hud-score">0</b></span>
+      <span class="chip"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></svg> <b id="hud-coin">0</b></span>
+      <span class="chip"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg> <b id="hud-exp">0</b>/<span id="hud-expmax">100</span></span>
     </div>
   </div>
 
   <div id="hud-right">
-    <div id="timer">⏱ 0:00</div>
+    <div id="timer"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> 0:00</div>
     <div id="fpsmeter">FPS <b id="hud-fps">60</b></div>
-    <div class="chip danger">👾 <b id="hud-enemies">0</b></div>
-    <div class="chip gold">💎 <b id="hud-treasure">0</b></div>
+    <div class="chip danger"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13a8 8 0 0 1 16 0v4a3 3 0 0 1-6 0h-4a3 3 0 0 1-6 0z"/><circle cx="9.5" cy="12" r="1.1"/><circle cx="14.5" cy="12" r="1.1"/></svg> <b id="hud-enemies">0</b></div>
+    <div class="chip gold"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M9.5 3l2.5 6 2.5-6"/></svg> <b id="hud-treasure">0</b></div>
     <div id="combo" class="hidden">COMBO x<b id="combo-count">1</b></div>
   </div>
 </div>
@@ -49,17 +49,17 @@
 <div id="menu" class="overlay">
   <div class="con">
     <div class="logo">
-      <div class="logo-icon">🏆</div>
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 7H4a2 2 0 0 0 2 4h3"/><path d="M17 7h3a2 2 0 0 1-2 4h-3"/><path d="M12 12v5"/><path d="M9 21h6"/><path d="M10 17v4"/></svg></div>
       <h1>TREASURE <span>HUNTER</span></h1>
       <p class="tag">Pixel Adventure Fantasy</p>
     </div>
 
     <div class="menu-buttons">
-      <button class="btn play" id="btn-play">▶ Play</button>
-      <button class="btn" id="btn-howto">📖 How To Play</button>
-      <button class="btn" id="btn-settings">⚙ Settings</button>
-      <button class="btn" id="btn-highscore">🏆 High Score</button>
-      <button class="btn" id="btn-daily">🎁 Daily Reward</button>
+      <button class="btn play" id="btn-play"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>Play</button>
+      <button class="btn" id="btn-howto"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h5a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4z"/><path d="M20 4h-5a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h5z"/></svg>How To Play</button>
+      <button class="btn" id="btn-settings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</button>
+      <button class="btn" id="btn-highscore"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 7H4a2 2 0 0 0 2 4h3"/><path d="M17 7h3a2 2 0 0 1-2 4h-3"/><path d="M12 12v5"/><path d="M9 21h6"/><path d="M10 17v4"/></svg>High Score</button>
+      <button class="btn" id="btn-daily"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C10.5 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13.5 2 12 7 12 7z"/></svg>Daily Reward</button>
     </div>
 
     <div class="version">v1.0 · 10 Levels</div>
@@ -69,10 +69,10 @@
 <!-- ===== PAUSE ===== -->
 <div id="pause" class="overlay hidden">
   <div class="con">
-    <h2>⏸ PAUSED</h2>
-    <button class="btn" id="btn-resume">▶ Resume</button>
-    <button class="btn" id="btn-settings2">⚙ Settings</button>
-    <button class="btn" id="btn-menu">🏠 Main Menu</button>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5v14"/><path d="M15 5v14"/></svg>PAUSED</h2>
+    <button class="btn" id="btn-resume"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>Resume</button>
+    <button class="btn" id="btn-settings2"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</button>
+    <button class="btn" id="btn-menu"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg>Main Menu</button>
   </div>
 </div>
 
@@ -86,7 +86,7 @@
       <div>Coins <b id="lc-coin">0</b></div>
       <div>Time <b id="lc-time">0:00</b></div>
     </div>
-    <button class="btn" id="btn-next">▶ Next Level</button>
+    <button class="btn" id="btn-next"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 5v14l11-7z"/></svg>Next Level</button>
   </div>
 </div>
 
@@ -99,28 +99,28 @@
       <div>Coins <b id="go-coin">0</b></div>
       <div>Level <b id="go-level">1</b></div>
     </div>
-    <button class="btn" id="btn-restart">🔄 Restart</button>
-    <button class="btn" id="btn-menu2">🏠 Main Menu</button>
+    <button class="btn" id="btn-restart"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Restart</button>
+    <button class="btn" id="btn-menu2"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg>Main Menu</button>
   </div>
 </div>
 
 <!-- ===== VICTORY ===== -->
 <div id="victory" class="overlay hidden">
   <div class="con">
-    <h2 class="gold-text">🏆 VICTORY! 🏆</h2>
+    <h2 class="gold-text"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 7H4a2 2 0 0 0 2 4h3"/><path d="M17 7h3a2 2 0 0 1-2 4h-3"/><path d="M12 12v5"/><path d="M9 21h6"/><path d="M10 17v4"/></svg>VICTORY!<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 7H4a2 2 0 0 0 2 4h3"/><path d="M17 7h3a2 2 0 0 1-2 4h-3"/><path d="M12 12v5"/><path d="M9 21h6"/><path d="M10 17v4"/></svg></h2>
     <p class="tag">You conquered all 10 levels!</p>
     <div class="sum">
       <div>Final Score <b id="vic-score">0</b></div>
       <div>Coins <b id="vic-coin">0</b></div>
     </div>
-    <button class="btn" id="btn-vicmenu">🏠 Main Menu</button>
+    <button class="btn" id="btn-vicmenu"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/></svg>Main Menu</button>
   </div>
 </div>
 
 <!-- ===== HOW TO PLAY ===== -->
 <div id="howto" class="overlay hidden">
   <div class="con">
-    <h2>📖 How To Play</h2>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h5a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4z"/><path d="M20 4h-5a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h5z"/></svg>How To Play</h2>
     <div class="howto-grid">
       <div><span class="k">WASD</span>/<span class="k">Arrows</span> Move</div>
       <div><span class="k">Shift</span> Sprint</div>
@@ -129,43 +129,43 @@
       <div><span class="k">ESC</span> Pause</div>
       <div><span class="k">F3</span> Debug</div>
     </div>
-    <p>⬆ Collect all <span class="tc">💎 TREASURES</span> to open the <span class="tc">🌀 PORTAL</span> and advance. <br/>Sprint, dash into danger, and defeat monsters to earn coins!</p>
-    <button class="btn" id="btn-howto-back">⬅ Back</button>
+    <p><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg> Collect all <span class="tc"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M9.5 3l2.5 6 2.5-6"/></svg> TREASURES</span> to open the <span class="tc"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/><circle cx="12" cy="12" r="2"/></svg> PORTAL</span> and advance. <br/>Sprint, dash into danger, and defeat monsters to earn coins!</p>
+    <button class="btn" id="btn-howto-back"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Back</button>
   </div>
 </div>
 
 <!-- ===== SETTINGS ===== -->
 <div id="settings" class="overlay hidden">
   <div class="con">
-    <h2>⚙ Settings</h2>
-    <label class="row"><span>🔊 Sound</span><input type="checkbox" id="set-sound" checked /></label>
-    <label class="row"><span>🎵 Music</span><input type="checkbox" id="set-music" checked /></label>
-    <label class="row"><span>💨 Screen Shake</span><input type="checkbox" id="set-shake" checked /></label>
-    <label class="row"><span>✨ Particles</span><input type="checkbox" id="set-particles" checked /></label>
-    <button class="btn" id="btn-settings-back">⬅ Back</button>
+    <h2><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Settings</h2>
+    <label class="row"><span class="row-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg> Sound</span><input type="checkbox" id="set-sound" checked /></label>
+    <label class="row"><span class="row-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v13"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="17" r="2.2"/></svg> Music</span><input type="checkbox" id="set-music" checked /></label>
+    <label class="row"><span class="row-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg> Screen Shake</span><input type="checkbox" id="set-shake" checked /></label>
+    <label class="row"><span class="row-label"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3z"/><path d="M19 16l.9 2.6L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.4L19 16z"/></svg> Particles</span><input type="checkbox" id="set-particles" checked /></label>
+    <button class="btn" id="btn-settings-back"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Back</button>
   </div>
 </div>
 
 <!-- ===== HIGH SCORE ===== -->
 <div id="highscore" class="overlay hidden">
   <div class="con">
-    <h2>🏆 High Score</h2>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 7H4a2 2 0 0 0 2 4h3"/><path d="M17 7h3a2 2 0 0 1-2 4h-3"/><path d="M12 12v5"/><path d="M9 21h6"/><path d="M10 17v4"/></svg>High Score</h2>
     <div class="scores">
       <div>Best Score <b id="hs-score">0</b></div>
       <div>Level Reached <b id="hs-level">1</b></div>
       <div>Total Coins <b id="hs-coin">0</b></div>
     </div>
-    <button class="btn" id="btn-hs-back">⬅ Back</button>
+    <button class="btn" id="btn-hs-back"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Back</button>
   </div>
 </div>
 
 <!-- ===== DAILY REWARD ===== -->
 <div id="daily" class="overlay hidden">
   <div class="con">
-    <h2>🎁 Daily Reward</h2>
+    <h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C10.5 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13.5 2 12 7 12 7z"/></svg>Daily Reward</h2>
     <p id="daily-msg">Claim your reward!</p>
     <button class="btn" id="btn-daily-claim">Claim +50 Coins</button>
-    <button class="btn" id="btn-daily-back">⬅ Back</button>
+    <button class="btn" id="btn-daily-back"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>Back</button>
   </div>
 </div>
 
@@ -179,13 +179,13 @@
     <div id="joy-base"></div>
     <div id="joy-knob"></div>
   </div>
-  <div id="btn-dash">⚡</div>
-  <div id="btn-attack">⚔</div>
-  <div id="btn-sprint">🏃</div>
+  <div id="btn-dash"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+  <div id="btn-attack"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/><path d="M6 6l1.5-1.5"/><path d="M18 18l-1.5 1.5"/><path d="M18 6l-1.5-1.5"/><path d="M6 18l1.5-1.5"/></svg></div>
+  <div id="btn-sprint"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="5" r="2"/><path d="M12 8l-4 3 1 7"/><path d="M12 8l5 2 1 4 3 2"/><path d="M9 14H5"/></svg></div>
 </div>
 
-<button id="btn-mute">🔊</button>
-<button id="btn-fullscreen">⛶</button>
+<button id="btn-mute"><svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></svg><svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9l5 6"/><path d="M21 9l-5 6"/></svg></button>
+<button id="btn-fullscreen"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></button>
 
 <!-- core/ single game file -->
 <script src="script.js"></script>

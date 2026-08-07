@@ -77,6 +77,55 @@ const PALETTE = {
 };
 
 /* =========================================================================
+   SECTION 1b — ICON LIBRARY (inline SVG, no emoji)
+   All icons are 24x24 stroke line-icons; color inherits currentColor.
+   ========================================================================= */
+const iconSVG = (inner, cls = 'icon') =>
+  `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${inner}</svg>`;
+
+const ICONS = {
+  trophy: iconSVG('<path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 7H4a2 2 0 0 0 2 4h3"/><path d="M17 7h3a2 2 0 0 1-2 4h-3"/><path d="M12 12v5"/><path d="M9 21h6"/><path d="M10 17v4"/>'),
+  play: iconSVG('<path d="M7 5v14l11-7z"/>'),
+  pause: iconSVG('<path d="M9 5v14"/><path d="M15 5v14"/>'),
+  book: iconSVG('<path d="M4 4h5a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H4z"/><path d="M20 4h-5a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h5z"/>'),
+  gear: iconSVG('<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>'),
+  gift: iconSVG('<path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C10.5 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13.5 2 12 7 12 7z"/>'),
+  home: iconSVG('<path d="M3 11l9-8 9 8"/><path d="M5 9v11h14V9"/><path d="M10 20v-6h4v6"/>'),
+  restart: iconSVG('<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>'),
+  back: iconSVG('<path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/>'),
+  up: iconSVG('<path d="M12 19V5"/><path d="M5 12l7-7 7 7"/>'),
+  down: iconSVG('<path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/>'),
+  coin: iconSVG('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/>'),
+  star: iconSVG('<path d="M12 3l2.6 6.6L21 10l-5 4 1.5 7-5.5-3.5L6.5 21 8 14l-5-4 6.4-.4z"/>'),
+  sparkle: iconSVG('<path d="M12 2l1.7 5.3L19 9l-5.3 1.7L12 16l-1.7-5.3L5 9l5.3-1.7z"/>'),
+  bolt: iconSVG('<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/>'),
+  monster: iconSVG('<path d="M4 13a8 8 0 0 1 16 0v4a3 3 0 0 1-6 0h-4a3 3 0 0 1-6 0z"/><circle cx="9.5" cy="12" r="1.1"/><circle cx="14.5" cy="12" r="1.1"/>'),
+  gem: iconSVG('<path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20"/><path d="M9.5 3l2.5 6 2.5-6"/>'),
+  clock: iconSVG('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>'),
+  heart: iconSVG('<path d="M12 20S5 15.5 3 11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/>'),
+  wind: iconSVG('<path d="M3 8h8a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h13a2.5 2.5 0 1 1-2.5 2.5"/><path d="M3 16h6a2.5 2.5 0 1 1-2.5 2.5"/>'),
+  shield: iconSVG('<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>'),
+  magnet: iconSVG('<path d="M4 4h6v7a2 2 0 0 0 4 0V4h6"/><path d="M4 4v3h6"/>'),
+  sword: iconSVG('<path d="M6 6l12 12"/><path d="M18 6L6 18"/><path d="M6 6l1.5-1.5"/><path d="M18 18l-1.5 1.5"/><path d="M18 6l-1.5-1.5"/><path d="M6 18l1.5-1.5"/>'),
+  runner: iconSVG('<circle cx="14" cy="5" r="2"/><path d="M12 8l-4 3 1 7"/><path d="M12 8l5 2 1 4 3 2"/><path d="M9 14H5"/>'),
+  fullscreen: iconSVG('<path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/>'),
+  sun: iconSVG('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4.9 4.9l1.4 1.4"/><path d="M17.7 17.7l1.4 1.4"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M4.9 19.1l1.4-1.4"/><path d="M17.7 6.3l1.4-1.4"/>'),
+  rain: iconSVG('<path d="M7 17a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z"/><path d="M8 20l-1 3"/><path d="M12 20l-1 3"/><path d="M16 20l-1 3"/>'),
+  moon: iconSVG('<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>'),
+  fog: iconSVG('<path d="M3 8h9"/><path d="M16 8h5"/><path d="M3 12h7"/><path d="M13 12h8"/><path d="M3 16h12"/>'),
+  skull: iconSVG('<path d="M12 4a7 7 0 0 0-7 7c0 2.1.9 3.2 1.6 4.3L8 18h8l1.4-2.7C18.1 14.2 19 13.1 19 11a7 7 0 0 0-7-7z"/><circle cx="9.5" cy="11" r="1.2"/><circle cx="14.5" cy="11" r="1.2"/><path d="M11 15v3"/><path d="M13 15v3"/>'),
+  medal: iconSVG('<circle cx="12" cy="10" r="6"/><path d="M8.5 15 6 21l6-2.7L18 21l-2.5-6"/>'),
+  camera: iconSVG('<path d="M3 8h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13" r="4"/>'),
+  party: iconSVG('<path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6L12 3z"/><path d="M12 17v4"/>'),
+  bug: iconSVG('<circle cx="12" cy="14" r="5"/><path d="M9 10l-3-4"/><path d="M15 10l3-4"/><path d="M9 18l-3 3"/><path d="M15 18l3 3"/><path d="M12 9V6"/>'),
+  portal: iconSVG('<path d="M12 3a9 9 0 1 0 9 9"/><circle cx="12" cy="12" r="2"/>'),
+  tree: iconSVG('<path d="M12 3l7 8H5z"/><path d="M12 11v9"/><path d="M8.5 20h7"/>'),
+  dragon: iconSVG('<path d="M12 4c3 1 4 4 3 7-1 3-5 4-7 3s-2-6 1-8c1-1 2-2 3-2z"/><path d="M12 11c1 2 1 5 0 7"/><path d="M11 5l-3-1"/><path d="M14 12l3-1"/>'),
+  money: iconSVG('<circle cx="12" cy="12" r="9"/><path d="M8.5 9h3a1.5 1.5 0 0 1 0 3h-1a1.5 1.5 0 0 0 0 3h3"/><path d="M12 6.5V8"/><path d="M12 16v1.5"/>'),
+  check: iconSVG('<path d="M20 6L9 17l-5-5"/>'),
+};
+
+/* =========================================================================
    SECTION 2 — UTILS (math / easing / pool)
    ========================================================================= */
 const U = {
@@ -874,7 +923,7 @@ class Weather {
   }
   set(type) {
     this.type = type;
-    this.game.toast('weather', { sunny: '☀️ Sunny Day', rain: '🌧 Heavy Rain', night: '🌙 Night Falls', fog: '🌫 Dense Fog', lightning: '⚡ Thunderstorm' }[type]);
+    this.game.toast('weather', { sunny: ICONS.sun + ' Sunny Day', rain: ICONS.rain + ' Heavy Rain', night: ICONS.moon + ' Night Falls', fog: ICONS.fog + ' Dense Fog', lightning: ICONS.bolt + ' Thunderstorm' }[type]);
   }
   randomize() {
     const r = Math.random();
@@ -1427,7 +1476,7 @@ class Player extends Entity {
       this.maxHp = Math.round(this.maxHp + 20);
       this.hp = Math.min(this.maxHp, this.hp + 40);
       this.audio('levelup');
-      this.game.ui.toast('levelup', `⬆ LEVEL ${this.level}!`);
+      this.game.ui.toast('levelup', ICONS.up + ` LEVEL ${this.level}!`);
       this.game.burstText(this.centerX(), this.y, `LEVEL ${this.level}!`, '#ffd54a', 22);
       this.game.particles.burst(this.centerX(), this.centerY(), 24, '#ffd54a', 220, { gravity: 40 });
       this.game.achievement('first-level');
@@ -1966,7 +2015,7 @@ class Boss extends Enemy {
     this.audio('bossRoar');
     this.game.camera.addShake(10);
     this.game.camera.flash('#ffd54a', 0.25);
-    this.game.ui.toast('boss', `☠ ${this.bossName} APPEARS!`);
+    this.game.ui.toast('boss', ICONS.skull + ` ${this.bossName} APPEARS!`);
   }
   update(dt) {
     super.update(dt);
@@ -2140,11 +2189,11 @@ class PowerUp extends Entity {
     this.dead = true;
     const p = this.game.player;
     const defs = {
-      speed: { label: '💨 SPEED BOOST', color: '#fdd835' },
-      shield: { label: '🛡 SHIELD', color: '#4dd0e1' },
-      magnet: { label: '🧲 COIN MAGNET', color: '#ab47bc' },
-      double: { label: '✨ DOUBLE SCORE', color: '#ffffff' },
-      heal: { label: '❤ HEAL', color: '#ef5350' },
+      speed: { label: ICONS.wind + ' SPEED BOOST', color: '#fdd835' },
+      shield: { label: ICONS.shield + ' SHIELD', color: '#4dd0e1' },
+      magnet: { label: ICONS.magnet + ' COIN MAGNET', color: '#ab47bc' },
+      double: { label: ICONS.sparkle + ' DOUBLE SCORE', color: '#ffffff' },
+      heal: { label: ICONS.heart + ' HEAL', color: '#ef5350' },
     };
     const d = defs[this.kind];
     p.powerups[this.kind] = CFG.POWERUP_DURATION;
@@ -2179,8 +2228,9 @@ class PowerUp extends Entity {
 class Portal {
   constructor(game) {
     this.game = game;
-    this.x = U.rand(0, game.world.w);
-    this.y = U.rand(0, game.world.h);
+    const pos = game.randSpawn(true);
+    this.x = pos.x;
+    this.y = pos.y;
     this.ph = 0;
     this.r = 34;
     this.active = true;
@@ -2281,7 +2331,7 @@ class UI {
       $(id).onchange = (e) => { Storage.set(key, e.target.checked); this.audio('click'); };
     }
     // corner buttons
-    $('btn-mute').onclick = () => { const m = this.game.audio.toggleMute(); $('btn-mute').textContent = m ? '🔇' : '🔊'; };
+    $('btn-mute').onclick = () => { const m = this.game.audio.toggleMute(); this.setMuteIcon(m); };
     $('btn-fullscreen').onclick = () => {
       if (!document.fullscreenElement) document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
       else document.exitFullscreen && document.exitFullscreen();
@@ -2332,18 +2382,18 @@ class UI {
     const box = this.$('powerup-badges');
     box.innerHTML = '';
     const p = this.game.player;
-    const icons = { speed: '💨', shield: '🛡', magnet: '🧲', double: '✨', heal: '❤' };
+    const icons = { speed: ICONS.wind, shield: ICONS.shield, magnet: ICONS.magnet, double: ICONS.sparkle, heal: ICONS.heart };
     for (const k in p.powerups) {
       const d = document.createElement('div');
       d.className = 'pubadge';
-      d.textContent = `${icons[k]} ${Math.ceil(p.powerups[k])}s`;
+      d.innerHTML = `${icons[k]} <span>${Math.ceil(p.powerups[k])}s</span>`;
       box.appendChild(d);
     }
   }
   toast(kind, msg) {
     const el = document.createElement('div');
     el.className = 'toast';
-    el.textContent = msg;
+    el.innerHTML = msg;
     this.toastBox.appendChild(el);
     setTimeout(() => el.remove(), 2200);
   }
@@ -2388,6 +2438,9 @@ class UI {
     this.$('set-shake').checked = !!Storage.get('shake');
     this.$('set-particles').checked = !!Storage.get('particles');
   }
+  setMuteIcon(muted) {
+    this.$('btn-mute').classList.toggle('muted', muted);
+  }
   refreshHighscore() {
     this.$('hs-score').textContent = Storage.get('highScore') || 0;
     this.$('hs-level').textContent = Storage.get('level') || 1;
@@ -2396,9 +2449,9 @@ class UI {
   refreshDaily() {
     const d = Storage.get('daily') || { day: '', claimed: false };
     const today = new Date().toDateString();
-    this.$('daily-msg').textContent = (d.day === today && d.claimed)
-      ? '✅ Already claimed! Come back tomorrow.'
-      : '🎉 Claim your daily bonus coins!';
+    this.$('daily-msg').innerHTML = (d.day === today && d.claimed)
+      ? ICONS.check + ' Already claimed! Come back tomorrow.'
+      : ICONS.gift + ' Claim your daily bonus coins!';
     this.$('btn-daily-claim').disabled = d.day === today && d.claimed;
   }
   claimDaily() {
@@ -2411,7 +2464,7 @@ class UI {
     this.game.audio.coin();
     this.$('daily-msg').textContent = `+${bonus} coins added to your total!`;
     this.$('btn-daily-claim').disabled = true;
-    this.game.toast('reward', `🎁 +${bonus} COINS!`);
+    this.game.toast('reward', ICONS.gift + ` +${bonus} COINS!`);
   }
   showStars(n) {
     const box = this.$('stars');
@@ -2430,21 +2483,21 @@ class UI {
    SECTION 19 — ACHIEVEMENTS (unlockable, persisted, toasts)
    ========================================================================= */
 const ACHIEVEMENTS = {
-  'first-kill': '⚔ First Blood — defeat 1 enemy',
-  'first-level': '⬆ First Level Up',
-  'treasures': '💎 Treasure Collector — collect 30 treasures',
-  'boss-treant': '🌳 Treant Slayer — defeat Treant King',
-  'boss-dragon': '🐉 Dragon Slayer — defeat Dragon Soul',
-  'rich': '💰 Rich! — 500 total coins',
-  'kills': '⚡ Monster Hunter — 50 kills',
-  'dashes': '💨 Dash Master — 100 dashes',
+  'first-kill': ICONS.sword + ' First Blood — defeat 1 enemy',
+  'first-level': ICONS.up + ' First Level Up',
+  'treasures': ICONS.gem + ' Treasure Collector — collect 30 treasures',
+  'boss-treant': ICONS.tree + ' Treant Slayer — defeat Treant King',
+  'boss-dragon': ICONS.dragon + ' Dragon Slayer — defeat Dragon Soul',
+  'rich': ICONS.money + ' Rich! — 500 total coins',
+  'kills': ICONS.bolt + ' Monster Hunter — 50 kills',
+  'dashes': ICONS.wind + ' Dash Master — 100 dashes',
 };
 
 class Achievements {
   constructor(game) { this.game = game; }
   unlock(id) {
     if (!Storage.unlockAch(id)) return false;
-    this.game.ui.toast('ach', '🏅 ' + ACHIEVEMENTS[id]);
+    this.game.ui.toast('ach', ICONS.medal + ' ' + ACHIEVEMENTS[id]);
     this.game.audio.levelup();
     return true;
   }
@@ -2505,7 +2558,7 @@ class Game {
   init() {
     this.resize();
     window.addEventListener('resize', () => this.resize());
-    document.getElementById('btn-mute').textContent = Storage.get('sound') ? '🔊' : '🔇';
+    this.ui.setMuteIcon(!Storage.get('sound'));
     this.audio.ensure();
     // pretty menu backdrop (static level-1 world behind the menu overlay)
     this.level = 1;
@@ -2589,7 +2642,7 @@ class Game {
     this.ui.updateHud();
     this.ui.hideAll();
     this.ui.showHud(true);
-    this.ui.toast('level', `⬇ LEVEL ${lv}`);
+    this.ui.toast('level', ICONS.down + ` LEVEL ${lv}`);
     this.audio.startMusic();
     this.state = 'PLAYING';
   }
@@ -2617,6 +2670,21 @@ class Game {
       if (far ? U.dist(x, y, cx, cy) > m.w * 0.32 : U.dist(x, y, cx, cy) > 260) {
         if (!m.isSolid(x, y, 20)) return { x, y };
       }
+    }
+    // fallback: deterministic scan of all free tiles so we ALWAYS return a
+    // reachable, non-solid spot (never the unreachable border/pond/rock).
+    const t = CFG.TILE;
+    const tw = Math.ceil(m.w / t);
+    const min = Math.max(1, Math.ceil(pad / t));
+    const max = Math.min(tw - 2, Math.floor((m.w - pad) / t));
+    const span = Math.max(1, max - min);
+    const start = U.randInt(0, span * span - 1);
+    for (let i = 0; i < span * span; i++) {
+      const idx = (start + i) % (span * span);
+      const tx = min + (idx % span);
+      const ty = min + Math.floor(idx / span);
+      const x = tx * t + t / 2, y = ty * t + t / 2;
+      if (!m.coll[ty * tw + tx] && !m.isSolid(x, y, 20)) return { x, y };
     }
     return { x: cx + 300, y: cy + 300 };
   }
@@ -2733,7 +2801,7 @@ class Game {
     if (this.portal) return;
     this.portal = new Portal(this);
     this.audio.portal();
-    this.ui.toast('portal', '🌀 PORTAL APPEARED! GO!');
+    this.ui.toast('portal', ICONS.portal + ' PORTAL APPEARED! GO!');
     this.camera.flash('#ab47bc', 0.3);
   }
   /* slow motion */
@@ -2771,12 +2839,12 @@ class Game {
     if (e.code === 'Space' && this.state === 'PLAYING') this.playerDash();
     if (e.code === 'F3') {
       this.debug = !this.debug;
-      this.ui.toast('debug', this.debug ? '🐞 DEBUG ON' : '🐞 DEBUG OFF');
+      this.ui.toast('debug', this.debug ? ICONS.bug + ' DEBUG ON' : ICONS.bug + ' DEBUG OFF');
     }
     if (e.code === 'F2') this.screenshot();
     if (e.code === 'KeyM') {
       const m = this.audio.toggleMute();
-      document.getElementById('btn-mute').textContent = m ? '🔇' : '🔊';
+      this.ui.setMuteIcon(m);
     }
     if (e.code === 'KeyR' && (this.state === 'GAMEOVER' || this.state === 'VICTORY')) this.restart();
   }
@@ -2786,7 +2854,7 @@ class Game {
     a.href = url;
     a.download = 'treasure-hunter.png';
     a.click();
-    this.ui.toast('shot', '📸 Screenshot saved!');
+    this.ui.toast('shot', ICONS.camera + ' Screenshot saved!');
   }
   pause() {
     if (this.state !== 'PLAYING') return;
@@ -2987,7 +3055,7 @@ class Game {
     const r = Math.random();
     if (r < 0.25) {
       // treasure rain — a few coins fall
-      this.ui.toast('event', '🎉 TREASURE RAIN!');
+      this.ui.toast('event', ICONS.party + ' TREASURE RAIN!');
       const drops = this.portal ? true : false;
       for (let i = 0; i < 6; i++) {
         const x = U.rand(200, this.world.w - 200);
@@ -3001,14 +3069,14 @@ class Game {
         this.ui.updateHud();
       }
     } else if (r < 0.5) {
-      this.ui.toast('event', '⚔ ENEMY SWARM!');
+      this.ui.toast('event', ICONS.sword + ' ENEMY SWARM!');
       for (let i = 0; i < 3; i++) {
         const kind = U.pick([Slime, Bat, Goblin]);
         const pos = this.randSpawn();
         this.enemies.push(new kind(this, pos.x, pos.y));
       }
     } else if (r < 0.75) {
-      this.ui.toast('event', '💨 SPEED WIND!');
+      this.ui.toast('event', ICONS.wind + ' SPEED WIND!');
       this.player.powerups['speed'] = Math.max(this.player.powerups['speed'] || 0, 8);
       this.applyPowerupStart('speed');
     }

@@ -67,7 +67,8 @@ h2{
   margin-bottom:1.2rem;
   text-shadow:0 0 15px rgba(255,213,74,.4);
 }
-.logo-icon{ font-size:clamp(2.5rem,10vw,4.5rem); filter:drop-shadow(0 0 15px rgba(255,213,74,.7)); animation:bob 2s ease-in-out infinite; }
+.logo-icon{ display:flex; justify-content:center; filter:drop-shadow(0 0 15px rgba(255,213,74,.7)); animation:bob 2s ease-in-out infinite; }
+.logo-icon svg{ width:clamp(3rem,12vw,5.5rem); height:auto; color:var(--gold); }
 @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-4deg);} 50%{ transform:translateY(-8px) rotate(4deg);} }
 .tag{ color:#bcd9c8; margin:.6rem 0 1.4rem; font-size:.9rem; }
 
@@ -131,6 +132,7 @@ h2{
 }
 .chip.danger b{ color:#ef5350; }
 .chip.gold b{ color:var(--gold); }
+.chip .icon,#timer .icon{ width:12px; height:12px; vertical-align:-2px; margin-right:4px; }
 .spacerbar{ width:130px !important; }
 #timer,#fpsmeter{ font-size:.78rem; color:#fff; padding:4px 9px; background:rgba(0,0,0,.55); border-radius:8px; }
 #fpsmeter b{ color:#7cdb7c; }
@@ -156,6 +158,8 @@ h2{
   box-shadow:0 0 12px var(--gold);
   animation:pop .3s;
 }
+.pubadge .icon{ width:14px; height:14px; vertical-align:-2px; margin-right:5px; }
+.pubadge span{ font-weight:800; }
 
 /* ========= MINIMAP ========= */
 #minimap{
@@ -182,6 +186,7 @@ h2{
 }
 @keyframes toastIn{ from{ transform:translateY(-20px); opacity:0;} to{ opacity:1;} }
 @keyframes toastOut{ to{ opacity:0; transform:scale(.7);} }
+.toast .icon{ width:16px; height:16px; vertical-align:-3px; margin-right:6px; }
 
 /* ========= VIRTUAL CONTROLS ========= */
 #vcontrols{ position:fixed; inset:0; z-index:12; pointer-events:none; }
@@ -215,6 +220,7 @@ h2{
   touch-action:none;
 }
 .vbtn:active{ background:rgba(255,213,74,.4); }
+.vbtn .icon{ width:60%; height:60%; }
 #btn-dash{ right:130px; bottom:70px; }
 #btn-attack{ right:40px; bottom:110px; width:80px; height:80px; }
 #btn-sprint{ right:48px; bottom:40px; width:48px; height:48px; font-size:1rem; }
@@ -224,6 +230,7 @@ h2{
   position:fixed; z-index:15; width:42px; height:42px;
   border-radius:10px; border:2px solid rgba(255,255,255,.4);
   background:rgba(0,0,0,.5); color:#fff; font-size:1rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
 }
 #btn-mute{ right:12px; bottom:150px; }
 #btn-fullscreen{ right:12px; bottom:192px; }
@@ -243,6 +250,24 @@ h2{
   padding:.6rem 1rem; background:rgba(0,0,0,.35); border-radius:10px;
 }
 .row input{ width:22px; height:22px; accent-color:var(--green); cursor:pointer; transform:scale(1.3); }
+.row-label{ display:flex; align-items:center; gap:.55rem; }
+
+/* inline SVG icons (no emoji) */
+.icon{
+  width:20px; height:20px; flex:none;
+  fill:none; stroke:currentColor; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.con h2 .icon{ width:1.5em; height:1.5em; vertical-align:-.28em; margin-right:.15em; }
+.btn .icon{ width:18px; height:18px; vertical-align:-4px; margin-right:6px; }
+
+/* mute button: two stacked SVGs toggled via .muted */
+#btn-mute{ display:flex; align-items:center; justify-content:center; }
+#btn-mute .icon{ width:22px; height:22px; }
+#btn-mute .icon-on{ display:block; }
+#btn-mute .icon-off{ display:none; }
+#btn-mute.muted .icon-on{ display:none; }
+#btn-mute.muted .icon-off{ display:block; }
 
 /* score lists */
 .scores,.sum{ display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-bottom:1.2rem; color:#dfeee6; }
