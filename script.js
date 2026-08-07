@@ -228,7 +228,7 @@ class Audio {
     if (!AC) return;
     this.ctx = new AC();
     this.master = this.ctx.createGain();
-    this.master.gain.value = 0.9;
+    this.master.gain.value = this.muted ? 0 : 0.9;
     this.master.connect(this.ctx.destination);
     this.sfxGain = this.ctx.createGain();
     this.sfxGain.connect(this.master);
@@ -1511,13 +1511,19 @@ class Player extends Entity {
       this.vy = mv.y * speed;
     }
     this.dashCd = Math.max(0, this.dashCd - dt);
-    // movement with collision
+    // movement with collision (resolve axis separately for sliding)
     const nvx = this.vx, nvy = this.vy;
     const r = this.w / 2 - 2;
     let nx = this.x + nvx * dt, ny = this.y + nvy * dt;
-    // resolve axis separately for sliding
-    if (!this.game.world.isSolid(nx + this.w / 2, this.centerY(), r) && !this.game.world.isSolid(nx + this.w / 2, this.y + r + 1, 0)) this.x = nx;
-    if (!this.game.world.isSolid(this.centerX(), ny + this.h / 2, 0) && !this.game.world.isSolid(this.x + r + 1, ny + this.h / 2, 0)) this.y = ny;
+    const g = this.game.world;
+    const canX = !g.isSolid(nx + this.w / 2, this.centerY(), r)
+      && !g.isSolid(nx + this.w / 2, this.y + 2, 0)
+      && !g.isSolid(nx + this.w / 2, this.y + this.h - 2, 0);
+    const canY = !g.isSolid(this.centerX(), ny + this.h / 2, r)
+      && !g.isSolid(this.x + 2, ny + this.h / 2, 0)
+      && !g.isSolid(this.x + this.w - 2, ny + this.h / 2, 0);
+    if (canX) this.x = nx;
+    if (canY) this.y = ny;
     // clamp inside world
     this.x = U.clamp(this.x, 6, this.game.world.w - this.w - 6);
     this.y = U.clamp(this.y, 6, this.game.world.h - this.h - 6);
@@ -1966,6 +1972,13 @@ class Projectile extends Entity {
     this.x += this.dirx * this.speed * dt;
     this.y += this.diry * this.speed * dt;
     this.life -= dt;
+    // blocked by solid tiles (walls/rocks/ponds/border)
+    if (this.game.world.isSolid(this.x, this.y, this.w / 2)) {
+      this.dead = true;
+      this.game.particles.burst(this.x, this.y, 10, this.color, 140, { gravity: 60 });
+      this.game.audio.hit();
+      return;
+    }
     this.game.particles.spawn({ x: this.x, y: this.y, vx: 0, vy: 0, life: 0.25, size: 4, color: this.color, glow: true, shrink: true });
     const p = this.game.player;
     if (p.alive && U.dist(this.x, this.y, p.centerX(), p.centerY()) < 18) {
@@ -2237,13 +2250,29 @@ class Portal {
     this.ph = 0;
     this.r = 34;
     this.active = true;
+    this._blockCd = 0;
   }
   update(dt) {
     this.ph += dt * 4;
     const p = this.game.player;
+    if (this._blockCd > 0) this._blockCd -= dt;
     if (this.active && p.alive && U.dist(this.x, this.y, p.centerX(), p.centerY()) < 40) {
-      this.active = false;
-      this.game.completeLevel();
+      const b = this.game.boss;
+      if (b && !b.dead) {
+        // boss level — the portal stays locked until the boss is defeated
+        if (this._blockCd <= 0) {
+          this._blockCd = 1.5;
+          this.game.ui.toast('portal', ICONS.skull + ` DEFEAT ${b.bossName} FIRST!`);
+          this.game.camera.flash('#ff5252', 0.18);
+          this.game.audio.hit();
+        }
+        const a = U.angTo(p.centerX(), p.centerY(), this.x, this.y);
+        p.x = U.clamp(p.x + Math.cos(a) * 8, 6, this.game.world.w - p.w - 6);
+        p.y = U.clamp(p.y + Math.sin(a) * 8, 6, this.game.world.h - p.h - 6);
+      } else {
+        this.active = false;
+        this.game.completeLevel();
+      }
     }
     // ambient swirl particles
     if (Math.random() < dt * 8) {
@@ -2394,7 +2423,7 @@ class UI {
   }
   updateTimer(t) {
     const m = Math.floor(t / 60), s = Math.floor(t % 60);
-    this.$('timer').textContent = `⏱ ${m}:${s.toString().padStart(2, '0')}`;
+    this.$('timer').innerHTML = `${ICONS.clock} ${m}:${s.toString().padStart(2, '0')}`;
   }
   updateFps(fps) { this.$('hud-fps').textContent = Math.round(fps); }
   updateCombo() {
@@ -2503,7 +2532,7 @@ class UI {
     for (let i = 0; i < 3; i++) {
       const s = document.createElement('span');
       s.className = 'star' + (i < n ? ' on' : '');
-      s.textContent = '★';
+      s.innerHTML = ICONS.star;
       s.style.animationDelay = `${i * 0.25}s`;
       box.appendChild(s);
     }
@@ -2561,6 +2590,13 @@ class Game {
     this.isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) ||
       (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
     this.dashTimes = 0;
+    this._carryScore = 0;
+    this._carryCoin = 0;
+    this._carryLevel = 0;
+    this._carryExp = 0;
+    this._carryExpMax = 0;
+    this._carryHp = 0;
+    this._carryMaxHp = 0;
     this.weather = new Weather(this);
     this.camera = new Camera(this);
     this.particles = new ParticleSystem();
@@ -2638,10 +2674,22 @@ class Game {
     this.boss = null;
     this.world.generate(lv);
     this.player.reset();
-    this.player.score = this.level > 1 ? this._carryScore : 0;
-    this.player.coin = this.level > 1 ? this._carryCoin || 0 : 0;
+    if (this._carryLevel) {
+      this.player.maxHp = this._carryMaxHp;
+      this.player.hp = Math.min(this._carryMaxHp, this._carryHp);
+      this.player.level = this._carryLevel;
+      this.player.exp = this._carryExp;
+      this.player.expMax = this._carryExpMax;
+    }
+    this.player.score = this._carryScore || 0;
+    this.player.coin = this._carryCoin || 0;
     this._carryScore = 0;
     this._carryCoin = 0;
+    this._carryLevel = 0;
+    this._carryExp = 0;
+    this._carryExpMax = 0;
+    this._carryHp = 0;
+    this._carryMaxHp = 0;
     this.particles.clear();
     this.texts = new FloatingTextSystem();
     this.camera.zoom = this.camera.targetZoom = this.camera.computeZoom();
@@ -2749,14 +2797,14 @@ class Game {
   }
   damageEnemy(e, dmg, src) {
     if (e.dead) return;
-    const wasHit = e.damage(dmg, src);
     const crit = Math.random() < 0.08;
-    const shown = Math.round(dmg * (crit ? 2 : 1));
+    const real = Math.round(dmg * (crit ? 2 : 1));
+    e.damage(real, src);
     if (crit) {
-      this.burstText(e.x, e.y - 16, `CRIT ${shown}!`, '#ff7043', 20);
+      this.burstText(e.x, e.y - 16, `CRIT ${real}!`, '#ff7043', 20);
       this.particles.burst(e.x, e.y, 10, '#ff7043', 160, { gravity: 60 });
     } else {
-      this.burstText(e.x, e.y - 16, `${shown}`, '#ffffff', 15);
+      this.burstText(e.x, e.y - 16, `${real}`, '#ffffff', 15);
     }
   }
   onEnemyKill(e, isBoss = false) {
@@ -2919,8 +2967,9 @@ class Game {
     if (this.levelTimer < starTime) stars++;
     if (this.levelTimer < starTime * 0.6 && this.player.hp > this.player.maxHp * 0.5) stars = 3;
     this.player.score += levelClear + timeBonus;
-    // persist
+    // persist (reset totalGain so victory/menu saves can't double-count it)
     this.saveProgress();
+    this.totalGain = 0;
     this.state = 'LEVELCOMPLETE';
     this._nextStars = stars;
     const m = Math.floor(this.levelTimer / 60), s = Math.floor(this.levelTimer % 60);
@@ -2934,6 +2983,11 @@ class Game {
   nextLevel() {
     this._carryScore = this.player.score;
     this._carryCoin = this.player.coin;
+    this._carryLevel = this.player.level;
+    this._carryExp = this.player.exp;
+    this._carryExpMax = this.player.expMax;
+    this._carryHp = this.player.hp;
+    this._carryMaxHp = this.player.maxHp;
     if (this.level >= CFG.LEVELS) {
       this.showVictory();
       return;
@@ -2971,6 +3025,12 @@ class Game {
     this.audio.ensure();
     this.audio.startMusic();
     this._carryScore = 0;
+    this._carryCoin = 0;
+    this._carryLevel = 0;
+    this._carryExp = 0;
+    this._carryExpMax = 0;
+    this._carryHp = 0;
+    this._carryMaxHp = 0;
     this._firstKill = false;
     this.dashTimes = Storage.get('dashCount') || 0;
     this.buildLevel(Math.min(Storage.get('level') || 1, CFG.LEVELS));

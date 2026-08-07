@@ -285,6 +285,7 @@ h2{
 /* stars for level complete */
 #stars{ font-size:2rem; margin:.5rem 0 1rem; }
 #stars .star{ display:inline-block; color:#546e7a; margin:0 .15rem; transition:transform .4s; }
+#stars .star .icon{ width:1.6rem; height:1.6rem; }
 #stars .star.on{ color:var(--gold); text-shadow:0 0 18px rgba(255,213,74,.9); animation:starPop .5s cubic-bezier(.2,1.7,.4,1); }
 @keyframes starPop{ 0%{ transform:scale(0) rotate(-90deg);} 100%{ transform:scale(1) rotate(0);} }
 
