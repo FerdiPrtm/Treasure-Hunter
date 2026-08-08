@@ -46,7 +46,7 @@ Slime · Bat · Skeleton · Goblin · Ghost — dengan AI sederhana (patrol → 
 
 ---
 
-## ✨ Fitur
+## Fitur
 
 - **Parallax Forest** — awan bergerak, gunung & hutan berlapis, air & rumput animasi
 - **Sistem efek lengkap** — particle, glow, shadow, lighting, screen shake, screen flash, floating damage/score, coin particle, dust, dash trail, slow motion, camera follow/zoom
@@ -63,7 +63,7 @@ Slime · Bat · Skeleton · Goblin · Ghost — dengan AI sederhana (patrol → 
 
 ---
 
-## 📁 Struktur Proyek
+## Struktur Proyek
 
 ```
 ├── index.html          # Canvas + overlay UI (menu, pause, HUD, joystick)
@@ -79,7 +79,7 @@ Slime · Bat · Skeleton · Goblin · Ghost — dengan AI sederhana (patrol → 
 
 ---
 
-## 🚀 Cara Menjalankan
+## Cara Menjalankan
 
 1. Clone repositori:
    ```bash
@@ -95,7 +95,7 @@ Slime · Bat · Skeleton · Goblin · Ghost — dengan AI sederhana (patrol → 
 
 ---
 
-## 🧩 Pengembangan
+## Pengembangan
 
 Kode ditulis modular dengan **ES6 Classes** yang terpisah agar mudah dikembangkan:
 
@@ -108,7 +108,7 @@ Kode ditulis modular dengan **ES6 Classes** yang terpisah agar mudah dikembangka
 
 ---
 
-## 🛠 Teknologi
+## Teknologi
 
 - HTML5
 - CSS3
